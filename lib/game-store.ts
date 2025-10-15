@@ -104,7 +104,8 @@ function ensureSocket() {
     // Lazy import to avoid SSR issues
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const io = require("socket.io-client");
-    socket = io(SOCKET_URL, { transports: ["websocket"], autoConnect: true });
+    // Allow polling fallback to avoid 502s behind some proxies
+    socket = io(SOCKET_URL, { transports: ["websocket", "polling"], autoConnect: true });
     return socket;
   } catch {
     return null;
