@@ -174,9 +174,24 @@ export function getSession(code: string): GameSession | null {
 // Join a session
 export function joinSession(code: string, playerName: string): Player | null {
   const sessions = getAllSessions();
-  const session = sessions[code];
+  let session = sessions[code];
 
-  if (!session || session.gameStarted) return null;
+  if (!session) {
+    if (USE_SOCKET) {
+      sessions[code] = {
+        code,
+        moderatorId: "",
+        players: [],
+        currentQuestion: 0,
+        gameStarted: false,
+        gameEnded: false,
+      };
+      session = sessions[code];
+    } else {
+      return null;
+    }
+  }
+  if (session.gameStarted) return null;
 
   const player: Player = {
     id: generatePlayerId(),
