@@ -51,7 +51,7 @@ export default function HomePage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-4xl font-bold">Small Group Connect</CardTitle>
+          <CardTitle className="text-4xl font-bold">MinistryGo</CardTitle>
           <CardDescription className="text-base">Enter the game code to join the fun!</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
