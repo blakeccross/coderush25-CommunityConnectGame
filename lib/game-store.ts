@@ -104,7 +104,8 @@ function ensureSocket() {
     // Lazy import to avoid SSR issues
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const io = require("socket.io-client");
-    socket = io(SOCKET_URL, { transports: ["websocket"], autoConnect: true });
+    // Allow polling fallback to avoid 502s behind some proxies
+    socket = io(SOCKET_URL, { transports: ["websocket", "polling"], autoConnect: true });
     return socket;
   } catch {
     return null;
@@ -174,9 +175,24 @@ export function getSession(code: string): GameSession | null {
 // Join a session
 export function joinSession(code: string, playerName: string): Player | null {
   const sessions = getAllSessions();
-  const session = sessions[code];
+  let session = sessions[code];
 
-  if (!session || session.gameStarted) return null;
+  if (!session) {
+    if (USE_SOCKET) {
+      sessions[code] = {
+        code,
+        moderatorId: "",
+        players: [],
+        currentQuestion: 0,
+        gameStarted: false,
+        gameEnded: false,
+      };
+      session = sessions[code];
+    } else {
+      return null;
+    }
+  }
+  if (session.gameStarted) return null;
 
   const player: Player = {
     id: generatePlayerId(),
