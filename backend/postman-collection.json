@@ -1,0 +1,26 @@
+{
+  "info": {
+    "name": "Socket.IO Game Server",
+    "_postman_id": "game-server-collection",
+    "description": "Note: This is a Socket.IO server. For full testing, use the test-client.js script.\n\nThis collection is for reference only - Socket.IO requires WebSocket connections, not traditional HTTP requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "WebSocket Instructions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4000/socket.io/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["socket.io", ""]
+        },
+        "description": "This server uses Socket.IO which operates over WebSockets.\n\nTo test with Postman:\n1. Use the test-client.js script (recommended)\n2. Or use Postman's WebSocket feature:\n   - New Request → WebSocket Request\n   - URL: ws://localhost:4000/socket.io/?EIO=4&transport=websocket\n   - Connect and send Socket.IO formatted messages\n\nSocket.IO Events:\n- session:create\n- session:subscribe\n- session:get\n- session:join\n- session:start\n- session:answer\n- session:next"
+      },
+      "response": []
+    }
+  ]
+}
