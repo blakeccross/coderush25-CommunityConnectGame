@@ -156,7 +156,12 @@ export function generateCode(): string {
 }
 
 // Create a new session
-export function createSession(brand?: string, sessionType?: string, gameMode?: "ice-breaker" | "session-trivia" | "prayer-request"): string {
+export function createSession(
+  brand?: string,
+  sessionType?: string,
+  gameMode?: "ice-breaker" | "session-trivia" | "prayer-request",
+  questionsOverride?: Question[]
+): string {
   const code = generateCode();
   const sessions = getAllSessions();
 
@@ -170,7 +175,12 @@ export function createSession(brand?: string, sessionType?: string, gameMode?: "
     brand,
     sessionType,
     gameMode,
-    questions: gameMode === "session-trivia" ? [...QUESTIONS] : undefined, // Initialize with default questions only for trivia
+    questions:
+      gameMode === "session-trivia"
+        ? questionsOverride && Array.isArray(questionsOverride) && questionsOverride.length > 0
+          ? [...questionsOverride]
+          : [...QUESTIONS]
+        : undefined, // Initialize with generated or default questions only for trivia
     prayerRequests: gameMode === "prayer-request" ? [] : undefined,
   };
 

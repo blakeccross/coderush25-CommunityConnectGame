@@ -14,6 +14,17 @@ export default function NewGamePage() {
   const [gameMode, setGameMode] = useState<GameMode | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<{ code: BrandCode; data: (typeof brands)[BrandCode] } | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [generatedQuestions, setGeneratedQuestions] = useState<
+    | {
+        id: number;
+        question: string;
+        answers: string[];
+        correctAnswer: number;
+      }[]
+    | null
+  >(null);
 
   const gameModes = [
     {
@@ -39,7 +50,7 @@ export default function NewGamePage() {
     },
   ];
 
-  const handleBrandSelect = (brandCode: BrandCode, brandData: (typeof brands)[BrandCode]) => {
+  const handleBrandSelect = async (brandCode: BrandCode, brandData: (typeof brands)[BrandCode]) => {
     if (selectedBrand?.code === brandCode) {
       // Close if clicking the same brand
       setIsExpanded(false);
@@ -50,17 +61,74 @@ export default function NewGamePage() {
     }
   };
 
-  const handleSessionSelect = (sessionType: SessionType) => {
+  const handleSessionSelect = async (sessionType: SessionType) => {
     if (!selectedBrand) return;
 
-    const code = createSession(selectedBrand.code, sessionType, "session-trivia");
+    // Generate questions for session-trivia mode
+    if (gameMode === "session-trivia") {
+      setGenerateError(null);
+      setIsGenerating(true);
+      setGeneratedQuestions(null);
 
-    // Store moderator flag
-    localStorage.setItem("isModerator", "true");
-    localStorage.setItem("sessionCode", code);
+      try {
+        // Fetch ETB Session 1 text and send to API to generate questions
+        const res = await fetch("/api/generate-questions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ source: "ETB_students_Session1.txt", questionCount: 5 }),
+        });
 
-    // Route to edit questions page first
-    router.push(`/new/edit/${code}`);
+        if (!res.ok) {
+          throw new Error(`Generation failed (${res.status})`);
+        }
+
+        const data = await res.json();
+
+        // Validate JSON structure
+        if (!Array.isArray(data?.questions)) {
+          throw new Error("Invalid response shape: questions not array");
+        }
+
+        data.questions.forEach((q: any, idx: number) => {
+          if (
+            typeof q?.question !== "string" ||
+            !Array.isArray(q?.answers) ||
+            q.answers.length !== 4 ||
+            typeof q?.correctAnswer !== "number" ||
+            q.correctAnswer < 0 ||
+            q.correctAnswer > 3
+          ) {
+            throw new Error(`Invalid question at index ${idx}`);
+          }
+        });
+
+        setGeneratedQuestions(data.questions);
+
+        // Create session with generated questions
+        const code = createSession(selectedBrand.code, sessionType, "session-trivia", data.questions);
+
+        // Store moderator flag
+        localStorage.setItem("isModerator", "true");
+        localStorage.setItem("sessionCode", code);
+
+        // Route to edit questions page first
+        router.push(`/new/edit/${code}`);
+      } catch (err: any) {
+        setGenerateError(err?.message || "Failed to generate questions");
+      } finally {
+        setIsGenerating(false);
+      }
+    } else {
+      // For non-trivia modes, create session without questions
+      const code = createSession(selectedBrand.code, sessionType, "session-trivia", generatedQuestions || undefined);
+
+      // Store moderator flag
+      localStorage.setItem("isModerator", "true");
+      localStorage.setItem("sessionCode", code);
+
+      // Route to edit questions page first
+      router.push(`/new/edit/${code}`);
+    }
   };
 
   const handlePrayerRequestStart = () => {
@@ -173,8 +241,15 @@ export default function NewGamePage() {
               ))}
             </div>
 
+            {/* Error Indicator */}
+            {generateError && (
+              <div className="max-w-2xl mx-auto text-center mb-4 animate-slide-up">
+                <div className="text-sm text-red-500">{generateError}</div>
+              </div>
+            )}
+
             <div
-              className={`overflow-hidden transition-all duration-700 ease-in-out ${isExpanded ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}`}
+              className={`overflow-hidden transition-all duration-700 ease-in-out ${isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
             >
               {selectedBrand && (
                 <div
@@ -187,11 +262,6 @@ export default function NewGamePage() {
 
                   <div className="relative z-10">
                     <div className="text-center mb-8">
-                      <div className="flex justify-center items-center gap-4 mb-4">
-                        <div className="w-32 h-32 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto">
-                          {selectedBrand.data.logo}
-                        </div>
-                      </div>
                       <h2 className="text-2xl font-bold mb-2 text-white">Choose Your Session</h2>
                       <p className="text-white/80">Select how you want to play {selectedBrand.data.name}</p>
                     </div>
@@ -205,11 +275,13 @@ export default function NewGamePage() {
                           style={{
                             animation: `slide-up 0.5s ease-out ${0.1 + index * 0.1}s both`,
                           }}
+                          disabled={gameMode === "session-trivia" && isGenerating}
                         >
                           <div className="flex items-start gap-4">
                             <div className="flex-1">
                               <h3 className="text-xl font-bold mb-2 text-white group-hover:scale-105 transition-transform">{mode.name}</h3>
                               <p className="text-sm text-white/80">{mode.description}</p>
+                              {gameMode === "session-trivia" && isGenerating && <p className="text-xs text-white/70 mt-2">Generating questions…</p>}
                             </div>
                           </div>
                         </button>
