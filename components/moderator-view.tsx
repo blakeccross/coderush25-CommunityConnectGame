@@ -311,71 +311,70 @@ export function ModeratorView({ session }: ModeratorViewProps) {
   }
 
   // Active question view
-  if (session.currentQuestion)
-    return (
-      <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-        <div className="max-w-2xl mx-auto space-y-6 py-8">
-          <div className="animate-pop-in">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between animate-slide-up animate-delay-100">
-                <h1 className="text-xl font-bold">
-                  Question {session.currentQuestion + 1} of {questions.length}
-                </h1>
-                <div className="flex items-center gap-2 text-lg font-bold">
-                  <Clock className={`w-5 h-5 ${timeLeft <= 10 ? "animate-pulse" : ""}`} />
-                  <span className={timeLeft <= 10 ? "text-destructive animate-pulse" : ""}>{timeLeft}s</span>
+
+  return (
+    <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+      <div className="max-w-2xl mx-auto space-y-6 py-8">
+        <div className="animate-pop-in">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between animate-slide-up animate-delay-100">
+              <h1 className="text-xl font-bold">
+                Question {session.currentQuestion + 1} of {questions.length}
+              </h1>
+              <div className="flex items-center gap-2 text-lg font-bold">
+                <Clock className={`w-5 h-5 ${timeLeft <= 10 ? "animate-pulse" : ""}`} />
+                <span className={timeLeft <= 10 ? "text-destructive animate-pulse" : ""}>{timeLeft}s</span>
+              </div>
+            </div>
+
+            <Progress value={(timeLeft / 30) * 100} className="h-2 animate-slide-up animate-delay-200" />
+
+            <p className="text-2xl font-bold text-center py-4 animate-bounce-in animate-delay-300">{currentQuestion.question}</p>
+          </div>
+          <div className="space-y-6">
+            {/* Answer Options Display */}
+            <div className="grid grid-cols-2 gap-3 animate-slide-up animate-delay-400">
+              {currentQuestion.answers.map((answer, index) => (
+                <div key={index} className="bg-muted/50 animate-pop-in">
+                  <div className="py-4 px-4 text-center">
+                    <p className="font-medium">{answer}</p>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Player Status */}
+            <div className="space-y-3 animate-slide-up animate-delay-500">
+              <div className="flex items-center gap-2 text-lg font-semibold">
+                <Users className="w-5 h-5" />
+                <span>Player Status 👥</span>
               </div>
 
-              <Progress value={(timeLeft / 30) * 100} className="h-2 animate-slide-up animate-delay-200" />
-
-              <p className="text-2xl font-bold text-center py-4 animate-bounce-in animate-delay-300">{currentQuestion.question}</p>
-            </div>
-            <div className="space-y-6">
-              {/* Answer Options Display */}
-              <div className="grid grid-cols-2 gap-3 animate-slide-up animate-delay-400">
-                {currentQuestion.answers.map((answer, index) => (
-                  <div key={index} className="bg-muted/50 animate-pop-in">
-                    <div className="py-4 px-4 text-center">
-                      <p className="font-medium">{answer}</p>
+              <div className="grid gap-2">
+                {session.players.map((player, index) => (
+                  <div key={player.id} className="bg-card/50 animate-slide-up">
+                    <div className="py-3 px-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{player.name}</span>
+                        </div>
+                        {player.hasAnswered ? (
+                          <Check className="w-5 h-5 text-accent animate-pop-in" />
+                        ) : (
+                          <Clock className="w-5 h-5 text-muted-foreground animate-pulse" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Player Status */}
-              <div className="space-y-3 animate-slide-up animate-delay-500">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <Users className="w-5 h-5" />
-                  <span>Player Status 👥</span>
-                </div>
-
-                <div className="grid gap-2">
-                  {session.players.map((player, index) => (
-                    <div key={player.id} className="bg-card/50 animate-slide-up">
-                      <div className="py-3 px-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
-                              {index + 1}
-                            </div>
-                            <span className="font-medium">{player.name}</span>
-                          </div>
-                          {player.hasAnswered ? (
-                            <Check className="w-5 h-5 text-accent animate-pop-in" />
-                          ) : (
-                            <Clock className="w-5 h-5 text-muted-foreground animate-pulse" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    );
-  return null;
+    </div>
+  );
 }
