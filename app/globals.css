@@ -39,7 +39,7 @@
   --font-sans: Outfit, sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: Fira Code, monospace;
-  --radius: 0.5rem;
+  --radius: 2.6rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
   --shadow-blur: 8px;
@@ -55,7 +55,7 @@
   --shadow-xl: 0px 4px 8px -2px hsl(0 0% 0% / 0.1), 0px 8px 10px -3px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0px 4px 8px -2px hsl(0 0% 0% / 0.25);
   --tracking-normal: 0em;
-  --spacing: 0.25rem;
+  --spacing: 0.35rem;
 }
 
 .dark {
@@ -94,7 +94,7 @@
   --font-sans: Outfit, sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: Fira Code, monospace;
-  --radius: 0.5rem;
+  --radius: 2.6rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
   --shadow-blur: 8px;
@@ -335,4 +335,45 @@ body {
 
 .animated-rings-bg::after {
   animation-delay: 6s;
+}
+
+/* Sparkle burst effect */
+@keyframes sparkle-pop {
+  0% {
+    opacity: 0;
+    transform: translate(var(--dx, 0), var(--dy, 0)) scale(0.2) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(var(--dx, 0), var(--dy, 0)) scale(1) rotate(45deg);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--dx, 0) * 1.2), calc(var(--dy, 0) * 1.2)) scale(0.2) rotate(180deg);
+  }
+}
+
+.sparkle-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.sparkle {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  opacity: 0;
+  animation: sparkle-pop 600ms ease-out forwards;
+  filter: drop-shadow(0 0 6px color(display-p3 1 0.9 0.6 / 0.9));
+}
+
+.sparkle svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }

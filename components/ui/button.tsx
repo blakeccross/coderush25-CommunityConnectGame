@@ -38,6 +38,8 @@ function Button({
   variant,
   size,
   asChild = false,
+  onClick,
+  disabled,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
@@ -45,7 +47,71 @@ function Button({
   }) {
   const Comp = asChild ? Slot : "button";
 
-  return <Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+  type SparkleStyle = React.CSSProperties & { [key in "--dx" | "--dy"]?: string };
+
+  const [sparkles, setSparkles] = React.useState<{ id: number; dx: number; dy: number }[]>([]);
+
+  const triggerSparkles = React.useCallback(() => {
+    if (disabled) return;
+    const count = 6; // number of sparkles per click
+    const next: { id: number; dx: number; dy: number }[] = [];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 16 + Math.random() * 20; // px
+      next.push({
+        id: Date.now() + i,
+        dx: Math.cos(angle) * distance,
+        dy: Math.sin(angle) * distance,
+      });
+    }
+    setSparkles(next);
+    // Cleanup after animation
+    window.setTimeout(() => {
+      setSparkles([]);
+    }, 700);
+  }, [disabled]);
+
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    triggerSparkles();
+    onClick?.(e);
+  };
+
+  return (
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }), "relative")}
+      onClick={handleClick}
+      disabled={disabled}
+      {...props}
+    >
+      {props.children}
+      {sparkles.length > 0 && (
+        <span className="sparkle-container" aria-hidden>
+          {sparkles.map((s) => (
+            <span
+              key={s.id}
+              className="sparkle"
+              style={
+                {
+                  left: "50%",
+                  top: "50%",
+                  marginLeft: "-5px",
+                  marginTop: "-5px",
+                  "--dx": `${s.dx}px`,
+                  "--dy": `${s.dy}px`,
+                  color: "currentColor",
+                } as SparkleStyle
+              }
+            >
+              <svg viewBox="0 0 20 20" aria-hidden>
+                <path d="M10 0 L12 8 L20 10 L12 12 L10 20 L8 12 L0 10 L8 8 Z" fill="currentColor" />
+              </svg>
+            </span>
+          ))}
+        </span>
+      )}
+    </Comp>
+  );
 }
 
 export { Button, buttonVariants };

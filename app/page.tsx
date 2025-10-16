@@ -91,7 +91,7 @@ export default function HomePage() {
                 setError("");
               }}
               maxLength={4}
-              className="text-center text-2xl font-bold tracking-widest uppercase transition-transform hover:scale-105"
+              className="text-center font-bold tracking-widest uppercase placeholder:opacity-50"
             />
           </div>
 
@@ -108,7 +108,8 @@ export default function HomePage() {
                 setError("");
               }}
               maxLength={20}
-              className="transition-transform hover:scale-105"
+              className="placeholder:opacity-50"
+              //className="transition-transform hover:scale-105"
             />
           </div>
 
@@ -119,7 +120,7 @@ export default function HomePage() {
             className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-500 animate-pulse-glow"
             size="lg"
           >
-            Join Game
+            Join Session
           </Button>
 
           <div className="relative animate-slide-up animate-delay-600">

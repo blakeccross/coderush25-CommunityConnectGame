@@ -7,6 +7,8 @@ import { type GameSession, getSessionQuestions, nextQuestion, getPrayerRequests,
 import { Clock, Check, X, Trophy, Users, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, LayoutGroup } from "framer-motion";
+import Header from "@/components/header-component";
+import { Badge } from "./ui/badge";
 
 type ModeratorViewProps = {
   session: GameSession;
@@ -62,96 +64,98 @@ export function ModeratorView({ session }: ModeratorViewProps) {
     const allPlayersSubmitted = session.players.every((p) => p.hasAnswered);
 
     return (
-      <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-        <div className="max-w-4xl mx-auto space-y-6 py-8">
-          <div className="animate-pop-in">
-            <div className="text-center space-y-4">
-              <div className="flex justify-center animate-bounce-in">
-                <div className="p-4 bg-orange-500/20 rounded-full animate-pulse-glow">
-                  <Heart className="w-12 h-12 text-orange-500 animate-float" />
+      <Header showResult>
+        <div className="min-h-screen p-4">
+          <div className="max-w-4xl mx-auto space-y-6 py-8">
+            <div className="animate-pop-in">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center animate-bounce-in">
+                  <div className="p-4 bg-orange-500/20 rounded-full animate-pulse-glow">
+                    <Heart className="w-12 h-12 text-orange-500 animate-float" />
+                  </div>
                 </div>
-              </div>
-              <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Prayer Requests</h1>
-              <p className="text-muted-foreground animate-slide-up animate-delay-300">
-                {allPlayersSubmitted
-                  ? `All ${session.players.length} participants have submitted their requests`
-                  : `${prayerRequests.length} of ${session.players.length} participants have submitted`}
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {prayerRequests.length === 0 ? (
-                <div className="text-center py-12 animate-pulse">
-                  <p className="text-muted-foreground">Waiting for prayer requests...</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {prayerRequests.map((request, index) => (
-                    <div
-                      key={request.id}
-                      className={`bg-card/50 p-6 rounded-xl border-2 border-border animate-slide-up animate-delay-${400 + index * 100}`}
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
-                              <Heart className="w-4 h-4 text-orange-500" />
-                            </div>
-                            <p className="font-semibold text-lg">{request.isAnonymous ? "Anonymous" : request.playerName}</p>
-                          </div>
-                          <p className="text-xs text-muted-foreground">{new Date(request.timestamp).toLocaleTimeString()}</p>
-                        </div>
-                        <p className="text-base text-foreground leading-relaxed pl-10">{request.request}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="pt-4 space-y-3">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <Users className="w-5 h-5" />
-                  <span>Participant Status 👥</span>
-                </div>
-
-                <div className="grid gap-2">
-                  {session.players.map((player, index) => (
-                    <div key={player.id} className="bg-card/50 animate-slide-up">
-                      <div className="py-3 px-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
-                              {player.avatar ? (
-                                <span className="text-lg leading-none">{player.avatar}</span>
-                              ) : (
-                                <span className="font-bold text-primary">{index + 1}</span>
-                              )}
-                            </div>
-                            <span className="font-medium">{player.name}</span>
-                          </div>
-                          {player.hasAnswered ? (
-                            <Check className="w-5 h-5 text-accent animate-pop-in" />
-                          ) : (
-                            <Clock className="w-5 h-5 text-muted-foreground animate-pulse" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Prayer Requests</h1>
+                <p className="text-muted-foreground animate-slide-up animate-delay-300">
+                  {allPlayersSubmitted
+                    ? `All ${session.players.length} participants have submitted their requests`
+                    : `${prayerRequests.length} of ${session.players.length} participants have submitted`}
+                </p>
               </div>
 
-              <Button
-                onClick={handleEndGame}
-                className="w-full text-lg h-12 font-semibold mt-6 game-button animate-pop-in animate-delay-600"
-                size="lg"
-              >
-                End Session ✨
-              </Button>
+              <div className="space-y-4">
+                {prayerRequests.length === 0 ? (
+                  <div className="text-center py-12 animate-pulse">
+                    <p className="text-muted-foreground">Waiting for prayer requests...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {prayerRequests.map((request, index) => (
+                      <div
+                        key={request.id}
+                        className={`bg-card/50 p-6 rounded-xl border-2 border-border animate-slide-up animate-delay-${400 + index * 100}`}
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                                <Heart className="w-4 h-4 text-orange-500" />
+                              </div>
+                              <p className="font-semibold text-lg">{request.isAnonymous ? "Anonymous" : request.playerName}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{new Date(request.timestamp).toLocaleTimeString()}</p>
+                          </div>
+                          <p className="text-base text-foreground leading-relaxed pl-10">{request.request}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="pt-4 space-y-3">
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Users className="w-5 h-5" />
+                    <span>Participant Status 👥</span>
+                  </div>
+
+                  <div className="grid gap-2">
+                    {session.players.map((player, index) => (
+                      <div key={player.id} className="bg-card/50 animate-slide-up">
+                        <div className="py-3 px-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
+                                {player.avatar ? (
+                                  <span className="text-lg leading-none">{player.avatar}</span>
+                                ) : (
+                                  <span className="font-bold text-primary">{index + 1}</span>
+                                )}
+                              </div>
+                              <span className="font-medium">{player.name}</span>
+                            </div>
+                            {player.hasAnswered ? (
+                              <Check className="w-5 h-5 text-accent animate-pop-in" />
+                            ) : (
+                              <Clock className="w-5 h-5 text-muted-foreground animate-pulse" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleEndGame}
+                  className="w-full text-lg h-12 font-semibold mt-6 game-button animate-pop-in animate-delay-600"
+                  size="lg"
+                >
+                  End Session ✨
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Header>
     );
   }
 
@@ -160,55 +164,57 @@ export function ModeratorView({ session }: ModeratorViewProps) {
     const sortedPlayers = [...session.players].sort((a, b) => b.score - a.score);
 
     return (
-      <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-        <div className="max-w-2xl mx-auto space-y-6 py-8">
-          <div className="animate-pop-in">
-            <div className="text-center space-y-4">
-              <div className="flex justify-center animate-bounce-in">
-                <div className="p-4 bg-accent/20 rounded-full animate-pulse-glow">
-                  <Trophy className="w-16 h-16 text-accent animate-float" />
+      <Header showResult>
+        <div className="min-h-screen p-4">
+          <div className="max-w-2xl mx-auto space-y-6 py-8">
+            <div className="animate-pop-in">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center animate-bounce-in">
+                  <div className="p-4 bg-accent/20 rounded-full animate-pulse-glow">
+                    <Trophy className="w-16 h-16 text-accent animate-float" />
+                  </div>
                 </div>
+                <h1 className="text-4xl font-bold animate-slide-up animate-delay-200">Game Over! 🎉</h1>
+                <p className="text-xl text-muted-foreground animate-slide-up animate-delay-300">Final Scores 🏆</p>
               </div>
-              <h1 className="text-4xl font-bold animate-slide-up animate-delay-200">Game Over! 🎉</h1>
-              <p className="text-xl text-muted-foreground animate-slide-up animate-delay-300">Final Scores 🏆</p>
-            </div>
-            <div className="space-y-4">
-              {sortedPlayers.slice(0, 20).map((player, index) => (
-                <div
-                  key={player.id}
-                  className={`animate-slide-up animate-delay-${400 + index * 100} ${index === 0 ? "bg-accent/10 border-accent" : "bg-card/50"}`}
-                >
-                  <div className="py-4 px-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-                          {player.avatar ? <span className="leading-none">{player.avatar}</span> : <span className="font-bold">{index + 1}</span>}
+              <div className="space-y-4">
+                {sortedPlayers.slice(0, 20).map((player, index) => (
+                  <div
+                    key={player.id}
+                    className={`animate-slide-up animate-delay-${400 + index * 100} ${index === 0 ? "bg-accent/10 border-accent" : "bg-card/50"}`}
+                  >
+                    <div className="py-4 px-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
+                            {player.avatar ? <span className="leading-none">{player.avatar}</span> : <span className="font-bold">{index + 1}</span>}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-lg">{player.name}</p>
+                            {index === 0 && <p className="text-sm text-accent font-medium">Winner! 🏆</p>}
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-semibold text-lg">{player.name}</p>
-                          {index === 0 && <p className="text-sm text-accent font-medium">Winner! 🏆</p>}
+                        <div className="text-right">
+                          <p className="text-3xl font-bold">{player.score}</p>
+                          <p className="text-sm text-muted-foreground">points</p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-3xl font-bold">{player.score}</p>
-                        <p className="text-sm text-muted-foreground">points</p>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              <Button
-                onClick={handleEndGame}
-                className="w-full text-lg h-12 font-semibold mt-6 game-button animate-pop-in animate-delay-600"
-                size="lg"
-              >
-                Back to Home ✨
-              </Button>
+                <Button
+                  onClick={handleEndGame}
+                  className="w-full text-lg h-12 font-semibold mt-6 game-button animate-pop-in animate-delay-600"
+                  size="lg"
+                >
+                  Back to Home ✨
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Header>
     );
   }
 
@@ -226,77 +232,81 @@ export function ModeratorView({ session }: ModeratorViewProps) {
     const showing = reorderToNew ? finalTop20 : initialOrder;
 
     return (
-      <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-        <div className="max-w-2xl mx-auto space-y-6 py-8">
-          <div className="animate-pop-in">
-            <div className="text-center space-y-4">
-              <h1 className="text-2xl font-bold animate-bounce-in">
-                Question {session.currentQuestion + 1} of {questions.length}
-              </h1>
-              <p className="text-lg animate-slide-up animate-delay-200">{currentQuestion.question}</p>
-              <div className="p-4 bg-accent/20 rounded-lg animate-pop-in animate-delay-300">
-                <p className="text-sm font-medium text-muted-foreground mb-2">Correct Answer:</p>
-                <p className="text-7xl font-bold text-accent">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
-              </div>
-            </div>
-            <div className="space-y-6">
-              {/* Current Leaderboard */}
-              <div className="space-y-3 animate-slide-up animate-delay-400">
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <Trophy className="w-5 h-5" />
-                  <span>Current Standings 📊</span>
+      <Header showResult>
+        <div className="min-h-screen p-4">
+          <div className="max-w-2xl mx-auto space-y-6 py-8">
+            <div className="animate-pop-in space-y-6">
+              <div className="text-center space-y-4">
+                <h1 className="text-2xl font-bold animate-bounce-in">
+                  Question {session.currentQuestion + 1} of {questions.length}
+                </h1>
+                <p className="text-lg animate-slide-up animate-delay-200">{currentQuestion.question}</p>
+                <div className="p-4 bg-white/10 rounded-lg animate-pop-in animate-delay-300">
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Correct Answer:</p>
+                  <p className="text-7xl font-bold text-white dark:text-black">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
                 </div>
+              </div>
+              <div className="space-y-6">
+                {/* Current Leaderboard */}
+                <div className="space-y-3 animate-slide-up animate-delay-400">
+                  {/* <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Trophy className="w-5 h-5" />
+                    <span>Current Standings 📊</span>
+                  </div> */}
 
-                <LayoutGroup>
-                  <div className="grid gap-2">
-                    {showing.map((player, index) => {
-                      const isCorrect = player.lastAnswer === currentQuestion.correctAnswer;
-                      const pointsEarned = player.pointsEarned as number;
-                      return (
-                        <motion.div key={player.id} layout layoutId={player.id} className="bg-card/50 animate-slide-up">
-                          <div className="py-3 px-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
-                                  {player.avatar ? (
-                                    <span className="text-lg leading-none">{player.avatar}</span>
+                  <LayoutGroup>
+                    <div className="grid gap-2">
+                      {showing.map((player, index) => {
+                        const isCorrect = player.lastAnswer === currentQuestion.correctAnswer;
+                        const pointsEarned = player.pointsEarned as number;
+                        return (
+                          <motion.div key={player.id} layout layoutId={player.id} className="bg-card/50 rounded-4xl animate-slide-up">
+                            <div className="py-2 px-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-base">{index + 1}</div>
+                                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
+                                    {player.avatar ? (
+                                      <span className="text-lg leading-none">{player.avatar}</span>
+                                    ) : (
+                                      <span className="font-bold text-primary">{index + 1}</span>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">{player.name}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  {pointsEarned > 0 && <Badge variant="default">{pointsEarned > 0 ? `+${pointsEarned} pts` : ""}</Badge>}
+                                  <span className="font-bold text-lg">{player.score}</span>
+                                  {isCorrect ? (
+                                    <Check className="w-5 h-5 text-green-600 animate-pop-in" />
                                   ) : (
-                                    <span className="font-bold text-primary">{index + 1}</span>
+                                    <X className="w-5 h-5 text-destructive animate-wiggle" />
                                   )}
                                 </div>
-                                <div>
-                                  <p className="font-medium">{player.name}</p>
-                                  {isCorrect && pointsEarned > 0 && <p className="text-xs text-accent">+{pointsEarned} pts</p>}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className="font-bold text-lg">{player.score}</span>
-                                {isCorrect ? (
-                                  <Check className="w-5 h-5 text-accent animate-pop-in" />
-                                ) : (
-                                  <X className="w-5 h-5 text-destructive animate-wiggle" />
-                                )}
                               </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </LayoutGroup>
-              </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </LayoutGroup>
+                </div>
 
-              <Button
-                onClick={handleNextQuestion}
-                className="w-full text-lg h-14 font-semibold game-button animate-pulse-glow animate-pop-in animate-delay-500"
-                size="lg"
-              >
-                {session.currentQuestion + 1 < questions.length ? "Next Question ➡️" : "View Final Results 🏆"}
-              </Button>
+                <Button
+                  onClick={handleNextQuestion}
+                  className="w-full text-lg h-14 font-semibold game-button animate-pulse-glow animate-pop-in animate-delay-500"
+                  size="lg"
+                  variant="outline"
+                >
+                  {session.currentQuestion + 1 < questions.length ? "Next Question" : "View Final Results 🏆"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Header>
     );
   }
 
