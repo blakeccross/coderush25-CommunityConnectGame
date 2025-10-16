@@ -119,7 +119,7 @@ export default function EditQuestionsPage() {
               <p className="text-muted-foreground">Session Code: {code}</p>
             </div>
           </div>
-          <Button onClick={handleSave} disabled={isSaving} className="game-button" size="lg">
+          <Button onClick={handleSave} disabled={isSaving} size="lg">
             <Save className="w-5 h-5 mr-2" />
             Save & Continue
           </Button>

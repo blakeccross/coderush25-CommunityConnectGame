@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { joinSession } from "@/lib/game-store";
 import { motion } from "framer-motion";
+import { PlusIcon } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -73,8 +74,10 @@ export default function HomePage() {
 
       <div className="w-full max-w-md animate-pop-in relative z-10 mt-24">
         <div className="text-center space-y-2">
-          <img src="/logos/ministrygo_logo.svg" alt="MinistryGo" className=" w-48 h-auto mx-auto" />
-
+          <img src="/logos/mgpro_logo_sm.svg" alt="MinistryGo" className=" w-8 h-auto mx-auto" />
+          <h1 className="text-2xl leading-tight">
+            ministry <strong>go</strong>
+          </h1>
           <p className="text-base animate-slide-up animate-delay-200 text-muted-foreground">Enter the session code to join</p>
         </div>
         <div className="space-y-4 p-6">
@@ -124,11 +127,11 @@ export default function HomePage() {
           </Button>
 
           <div className="relative animate-slide-up animate-delay-600">
-            <div className="absolute inset-0 flex items-center">
+            {/* <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
-            </div>
+            </div> */}
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or</span>
+              <span className="px-2 text-muted-foreground">Or</span>
             </div>
           </div>
 
@@ -138,7 +141,7 @@ export default function HomePage() {
             className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-600"
             size="lg"
           >
-            Create New Game
+            <PlusIcon className="w-4 h-4" /> Create New Session
           </Button>
         </div>
       </div>

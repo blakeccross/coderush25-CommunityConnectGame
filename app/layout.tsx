@@ -15,9 +15,9 @@ const adlamDisplay = ADLaM_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Trivia Time - Multiplayer Quiz Game",
-  description: "Play trivia with friends in real-time",
-  generator: "v0.app",
+  title: "MinistryGo",
+  description: "MinistryGo is a platform for creating collaborative ministry games and sharing prayer requests for large and small groups",
+  icons: "/mgpro_logo_sm.ico",
 };
 
 export default function RootLayout({
@@ -27,6 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <link rel="icon" href="/favicon.ico" sizes="any" />
       <body className={`font-sans ${adlamDisplay.variable} ${GeistSans.variable} ${GeistMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>{children}</Suspense>

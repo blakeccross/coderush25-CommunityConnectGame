@@ -88,8 +88,8 @@ export default function NewGamePage() {
               </div>
             </div>
             <div>
-              <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Choose Your Game Mode</h1>
-              <p className="text-base animate-slide-up animate-delay-300 mt-2">Select how you want to connect with your community</p>
+              <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Choose Your Session Mode</h1>
+              <p className="text-base animate-slide-up animate-delay-300 mt-2">Select how you want to connect with your group</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
@@ -99,7 +99,7 @@ export default function NewGamePage() {
                   <button
                     key={mode.id}
                     onClick={() => setGameMode(mode.id)}
-                    className={`group relative bg-gradient-to-br ${mode.gradient} rounded-3xl p-8 text-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 animate-pop-in`}
+                    className={`group relative bg-gradient-to-br ${mode.gradient} rounded-3xl p-8 text-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 animate-pop-in cursor-pointer`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-3xl transition-colors duration-300" />
@@ -118,7 +118,7 @@ export default function NewGamePage() {
             </div>
 
             <div className="flex justify-center mt-8">
-              <Button onClick={() => router.push("/")} variant="ghost" className="game-button">
+              <Button onClick={() => router.push("/")} variant="ghost">
                 Back to Home
               </Button>
             </div>
