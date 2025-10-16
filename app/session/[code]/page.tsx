@@ -151,7 +151,7 @@ export default function SessionPage() {
                 size="lg"
               >
                 <Play className="w-5 h-5 mr-2" />
-                Start Game 🚀
+                Start Session
               </Button>
             </div>
           </div>

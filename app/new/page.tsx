@@ -65,64 +65,49 @@ export default function NewGamePage() {
     if (!selectedBrand) return;
 
     // Generate questions for session-trivia mode
-    if (gameMode === "session-trivia") {
-      setGenerateError(null);
-      setIsGenerating(true);
-      setGeneratedQuestions(null);
 
-      try {
-        // Fetch ETB Session 1 text and send to API to generate questions
-        const res = await fetch("/api/generate-questions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ source: "ETB_students_Session1.txt", questionCount: 5 }),
-        });
+    setGenerateError(null);
+    setIsGenerating(true);
+    setGeneratedQuestions(null);
 
-        if (!res.ok) {
-          throw new Error(`Generation failed (${res.status})`);
-        }
+    try {
+      // Fetch ETB Session 1 text and send to API to generate questions
+      const res = await fetch("/api/generate-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source: "ETB_students_Session1.txt", questionCount: 5 }),
+      });
 
-        const data = await res.json();
-
-        // Validate JSON structure
-        if (!Array.isArray(data?.questions)) {
-          throw new Error("Invalid response shape: questions not array");
-        }
-
-        data.questions.forEach((q: any, idx: number) => {
-          if (
-            typeof q?.question !== "string" ||
-            !Array.isArray(q?.answers) ||
-            q.answers.length !== 4 ||
-            typeof q?.correctAnswer !== "number" ||
-            q.correctAnswer < 0 ||
-            q.correctAnswer > 3
-          ) {
-            throw new Error(`Invalid question at index ${idx}`);
-          }
-        });
-
-        setGeneratedQuestions(data.questions);
-
-        console.log("Generated questions:", selectedBrand.code, sessionType, "session-trivia", data.questions);
-
-        // Create session with generated questions
-        const code = createSession(selectedBrand.code, sessionType, "session-trivia", data.questions);
-
-        // Store moderator flag
-        localStorage.setItem("isModerator", "true");
-        localStorage.setItem("sessionCode", code);
-
-        // Route to edit questions page first
-        router.push(`/new/edit/${code}`);
-      } catch (err: any) {
-        setGenerateError(err?.message || "Failed to generate questions");
-      } finally {
-        setIsGenerating(false);
+      if (!res.ok) {
+        throw new Error(`Generation failed (${res.status})`);
       }
-    } else {
-      // For non-trivia modes, create session without questions
-      const code = createSession(selectedBrand.code, sessionType, gameMode || undefined, generatedQuestions || undefined);
+
+      const data = await res.json();
+
+      // Validate JSON structure
+      if (!Array.isArray(data?.questions)) {
+        throw new Error("Invalid response shape: questions not array");
+      }
+
+      data.questions.forEach((q: any, idx: number) => {
+        if (
+          typeof q?.question !== "string" ||
+          !Array.isArray(q?.answers) ||
+          q.answers.length !== 4 ||
+          typeof q?.correctAnswer !== "number" ||
+          q.correctAnswer < 0 ||
+          q.correctAnswer > 3
+        ) {
+          throw new Error(`Invalid question at index ${idx}`);
+        }
+      });
+
+      setGeneratedQuestions(data.questions);
+
+      console.log("Generated questions:", selectedBrand.code, sessionType, "session-trivia", data.questions);
+
+      // Create session with generated questions
+      const code = createSession(selectedBrand.code, sessionType, "session-trivia", data.questions);
 
       // Store moderator flag
       localStorage.setItem("isModerator", "true");
@@ -130,6 +115,10 @@ export default function NewGamePage() {
 
       // Route to edit questions page first
       router.push(`/new/edit/${code}`);
+    } catch (err: any) {
+      setGenerateError(err?.message || "Failed to generate questions");
+    } finally {
+      setIsGenerating(false);
     }
   };
 

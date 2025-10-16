@@ -226,7 +226,7 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
               <div className="space-y-4">
                 <div className="p-4 bg-muted/50 rounded-lg text-center animate-slide-up animate-delay-400">
                   <p className="text-sm font-medium text-muted-foreground mb-2">Correct Answer:</p>
-                  <p className="text-6xl font-bold">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
+                  <p className="text-2xl font-bold">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
                 </div>
 
                 <div className="text-center animate-slide-up animate-delay-500">

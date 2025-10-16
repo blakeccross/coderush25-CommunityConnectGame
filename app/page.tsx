@@ -72,7 +72,7 @@ export default function HomePage() {
         />
       ))} */}
 
-      <div className="w-full max-w-md animate-pop-in relative z-10 mt-24">
+      <div className="w-full max-w-md animate-pop-in relative z-10">
         <div className="text-center space-y-2">
           <img src="/logos/mgpro_logo_sm.svg" alt="MinistryGo" className=" w-8 h-auto mx-auto" />
           <h1 className="text-2xl leading-tight">

@@ -243,7 +243,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                 <p className="text-lg animate-slide-up animate-delay-200">{currentQuestion.question}</p>
                 <div className="p-4 bg-white/10 rounded-lg animate-pop-in animate-delay-300">
                   <p className="text-sm font-medium text-muted-foreground mb-2">Correct Answer:</p>
-                  <p className="text-7xl font-bold text-white dark:text-black">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
+                  <p className="text-2xl font-bold text-white dark:text-black">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
                 </div>
               </div>
               <div className="space-y-6">
