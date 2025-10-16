@@ -173,7 +173,6 @@ export default function NewGamePage() {
               <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Choose Your Session Mode</h1>
               <p className="text-base animate-slide-up animate-delay-300 mt-2">Select how you want to connect with your group</p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               {gameModes.map((mode, index) => {
                 const Icon = mode.icon;
@@ -393,9 +392,7 @@ export default function NewGamePage() {
           <div className="scrolling-document">
             <div className="scroll-content animate-vertical-scroll">
               {etbText}
-              {"\n\n"}
               {etbText}
-              {"\n\n"}
               {etbText}
             </div>
           </div>

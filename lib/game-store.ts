@@ -294,8 +294,6 @@ export function startGame(code: string): boolean {
   const session = sessions[code];
 
   if (!session) return false;
-  // Allow starting prayer-request sessions without waiting for players
-  if (session.gameMode !== "prayer-request" && session.players.length === 0) return false;
 
   // Assign random avatars to players who haven't chosen one
   session.players.forEach((p) => {

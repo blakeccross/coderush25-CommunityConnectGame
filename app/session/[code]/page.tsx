@@ -169,9 +169,7 @@ export default function SessionPage() {
             <h1 className="text-2xl font-bold animate-bounce-in">Waiting to Start ⏳</h1>
             <div className="flex items-center justify-center gap-2 animate-slide-up animate-delay-200">
               <span className="text-muted-foreground">Game Code:</span>
-              <span className="text-3xl font-bold tracking-widest bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-float">
-                {code}
-              </span>
+              <span className="text-3xl font-bold tracking-widest text-primary animate-float">{code}</span>
             </div>
           </div>
           <div className="space-y-6">
