@@ -24,6 +24,8 @@ export type GameSession = {
   gameStarted: boolean;
   gameEnded: boolean;
   timerStartTime?: number;
+  brand?: string;
+  gameMode?: string;
 };
 
 export type GameState = "lobby" | "playing" | "question-end" | "game-end";
@@ -138,7 +140,7 @@ export function generateCode(): string {
 }
 
 // Create a new session
-export function createSession(): string {
+export function createSession(brand?: string, gameMode?: string): string {
   const code = generateCode();
   const sessions = getAllSessions();
 
@@ -149,6 +151,8 @@ export function createSession(): string {
     currentQuestion: 0,
     gameStarted: false,
     gameEnded: false,
+    brand,
+    gameMode,
   };
 
   saveSessions(sessions);
@@ -156,7 +160,7 @@ export function createSession(): string {
   // Mirror to server if enabled
   const s = ensureSocket();
   if (s) {
-    s.emit("session:create", { code, moderatorId: sessions[code].moderatorId });
+    s.emit("session:create", { code, moderatorId: sessions[code].moderatorId, brand, gameMode });
   }
   return code;
 }
