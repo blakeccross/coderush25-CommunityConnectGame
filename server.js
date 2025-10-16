@@ -1,10 +1,6 @@
 /* Socket.IO game server with AWS Bedrock integration */
 const http = require("http");
 const { Server } = require("socket.io");
-const {
-  generateQuestions,
-  generateQuestionsFromDocument,
-} = require("./bedrock-helper");
 
 const PORT = Number(process.env.PORT || process.env.SOCKET_PORT || 4000);
 
@@ -54,105 +50,6 @@ io.on("connection", (socket) => {
     io.to(code).emit("session:update", { code, session: sessions[code] });
   });
 
-  // NEW: Generate questions from a prompt
-  socket.on(
-    "session:generate-questions",
-    async ({ code, prompt, questionCount }) => {
-      try {
-        const session = sessions[code];
-        if (!session) {
-          socket.emit("session:error", {
-            code,
-            error: "Session not found",
-          });
-          return;
-        }
-
-        if (session.gameStarted) {
-          socket.emit("session:error", {
-            code,
-            error: "Cannot generate questions after game has started",
-          });
-          return;
-        }
-
-        // Notify that generation is in progress
-        socket.emit("session:generating", { code });
-
-        // Generate questions using Bedrock
-        const questions = await generateQuestions(prompt, questionCount || 5);
-
-        // Store questions in session
-        session.questions = questions;
-
-        // Broadcast update to all clients in the session
-        io.to(code).emit("session:update", { code, session });
-        socket.emit("session:questions-generated", {
-          code,
-          success: true,
-          count: questions.length,
-        });
-      } catch (error) {
-        console.error("Error in session:generate-questions:", error);
-        socket.emit("session:error", {
-          code,
-          error: error.message,
-        });
-      }
-    }
-  );
-
-  // NEW: Generate questions from document content
-  socket.on(
-    "session:generate-from-document",
-    async ({ code, documentContent, questionCount }) => {
-      try {
-        const session = sessions[code];
-        if (!session) {
-          socket.emit("session:error", {
-            code,
-            error: "Session not found",
-          });
-          return;
-        }
-
-        if (session.gameStarted) {
-          socket.emit("session:error", {
-            code,
-            error: "Cannot generate questions after game has started",
-          });
-          return;
-        }
-
-        // Notify that generation is in progress
-        socket.emit("session:generating", { code });
-
-        // Generate questions from document using Bedrock
-        const questions = await generateQuestionsFromDocument(
-          documentContent,
-          questionCount || 5
-        );
-
-        // Store questions in session
-        session.questions = questions;
-
-        // Broadcast update to all clients in the session
-        io.to(code).emit("session:update", { code, session });
-        socket.emit("session:questions-generated", {
-          code,
-          success: true,
-          count: questions.length,
-        });
-      } catch (error) {
-        console.error("Error in session:generate-from-document:", error);
-        socket.emit("session:error", {
-          code,
-          error: error.message,
-        });
-      }
-    }
-  );
-
   socket.on("session:join", ({ code, player }) => {
     const session = sessions[code];
     if (!session || session.gameStarted) return;
@@ -188,8 +85,7 @@ io.on("connection", (socket) => {
     // Assign random avatars to players without one
     session.players.forEach((p) => {
       if (!p.avatar) {
-        const random =
-          PLAYER_AVATARS[Math.floor(Math.random() * PLAYER_AVATARS.length)];
+        const random = PLAYER_AVATARS[Math.floor(Math.random() * PLAYER_AVATARS.length)];
         p.avatar = random;
       }
     });
@@ -211,10 +107,7 @@ io.on("connection", (socket) => {
     // Scoring logic using generated questions
     const currentQuestion = session.questions[session.currentQuestion];
     if (currentQuestion && answerIndex === currentQuestion.correctAnswer) {
-      const timeBonus = Math.max(
-        0,
-        300 - Math.floor((player.answerTime || 0) / 100)
-      );
+      const timeBonus = Math.max(0, 300 - Math.floor((player.answerTime || 0) / 100));
       player.score = (player.score || 0) + timeBonus;
     }
     io.to(code).emit("session:update", { code, session });
