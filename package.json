@@ -11,6 +11,7 @@
     "dev:all": "concurrently \"pnpm run server\" \"pnpm run dev\""
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.911.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",

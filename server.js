@@ -1,25 +1,15 @@
-/* Simple Socket.IO game server to mirror client game-store behavior */
+/* Socket.IO game server with AWS Bedrock integration */
 const http = require("http");
 const { Server } = require("socket.io");
+const {
+  generateQuestions,
+  generateQuestionsFromDocument,
+} = require("./bedrock-helper");
 
 const PORT = Number(process.env.PORT || process.env.SOCKET_PORT || 4000);
 
 /** @type {Record<string, any>} */
 const sessions = {};
-
-// Questions copied to compute correctness and scoring on server
-const QUESTIONS = [
-  { id: 1, question: "What is the capital of France?", answers: ["London", "Berlin", "Paris", "Madrid"], correctAnswer: 2 },
-  { id: 2, question: "Which planet is known as the Red Planet?", answers: ["Venus", "Mars", "Jupiter", "Saturn"], correctAnswer: 1 },
-  { id: 3, question: "What is the largest ocean on Earth?", answers: ["Atlantic", "Indian", "Arctic", "Pacific"], correctAnswer: 3 },
-  { id: 4, question: "Who painted the Mona Lisa?", answers: ["Van Gogh", "Picasso", "Da Vinci", "Monet"], correctAnswer: 2 },
-  { id: 5, question: "What is the smallest prime number?", answers: ["0", "1", "2", "3"], correctAnswer: 2 },
-  { id: 6, question: "Which element has the chemical symbol 'O'?", answers: ["Gold", "Oxygen", "Silver", "Iron"], correctAnswer: 1 },
-  { id: 7, question: "How many continents are there?", answers: ["5", "6", "7", "8"], correctAnswer: 2 },
-  { id: 8, question: "What is the fastest land animal?", answers: ["Lion", "Cheetah", "Leopard", "Tiger"], correctAnswer: 1 },
-  { id: 9, question: "Which country is home to the kangaroo?", answers: ["New Zealand", "Australia", "South Africa", "Brazil"], correctAnswer: 1 },
-  { id: 10, question: "What is the largest mammal in the world?", answers: ["Elephant", "Blue Whale", "Giraffe", "Polar Bear"], correctAnswer: 1 },
-];
 
 const PLAYER_AVATARS = ["🦊", "🐼", "🐸", "🐯", "🦄", "🐵", "🐶", "🐱"];
 
@@ -58,17 +48,126 @@ io.on("connection", (socket) => {
         gameStarted: false,
         gameEnded: false,
         timerStartTime: undefined,
+        questions: [], // Will be populated by Bedrock
       };
     }
     io.to(code).emit("session:update", { code, session: sessions[code] });
   });
 
+  // NEW: Generate questions from a prompt
+  socket.on(
+    "session:generate-questions",
+    async ({ code, prompt, questionCount }) => {
+      try {
+        const session = sessions[code];
+        if (!session) {
+          socket.emit("session:error", {
+            code,
+            error: "Session not found",
+          });
+          return;
+        }
+
+        if (session.gameStarted) {
+          socket.emit("session:error", {
+            code,
+            error: "Cannot generate questions after game has started",
+          });
+          return;
+        }
+
+        // Notify that generation is in progress
+        socket.emit("session:generating", { code });
+
+        // Generate questions using Bedrock
+        const questions = await generateQuestions(prompt, questionCount || 5);
+
+        // Store questions in session
+        session.questions = questions;
+
+        // Broadcast update to all clients in the session
+        io.to(code).emit("session:update", { code, session });
+        socket.emit("session:questions-generated", {
+          code,
+          success: true,
+          count: questions.length,
+        });
+      } catch (error) {
+        console.error("Error in session:generate-questions:", error);
+        socket.emit("session:error", {
+          code,
+          error: error.message,
+        });
+      }
+    }
+  );
+
+  // NEW: Generate questions from document content
+  socket.on(
+    "session:generate-from-document",
+    async ({ code, documentContent, questionCount }) => {
+      try {
+        const session = sessions[code];
+        if (!session) {
+          socket.emit("session:error", {
+            code,
+            error: "Session not found",
+          });
+          return;
+        }
+
+        if (session.gameStarted) {
+          socket.emit("session:error", {
+            code,
+            error: "Cannot generate questions after game has started",
+          });
+          return;
+        }
+
+        // Notify that generation is in progress
+        socket.emit("session:generating", { code });
+
+        // Generate questions from document using Bedrock
+        const questions = await generateQuestionsFromDocument(
+          documentContent,
+          questionCount || 5
+        );
+
+        // Store questions in session
+        session.questions = questions;
+
+        // Broadcast update to all clients in the session
+        io.to(code).emit("session:update", { code, session });
+        socket.emit("session:questions-generated", {
+          code,
+          success: true,
+          count: questions.length,
+        });
+      } catch (error) {
+        console.error("Error in session:generate-from-document:", error);
+        socket.emit("session:error", {
+          code,
+          error: error.message,
+        });
+      }
+    }
+  );
+
   socket.on("session:join", ({ code, player }) => {
     const session = sessions[code];
     if (!session || session.gameStarted) return;
-    const newPlayer = player || { id: generatePlayerId(), name: "Player", score: 0, hasAnswered: false };
+    const newPlayer = player || {
+      id: generatePlayerId(),
+      name: "Player",
+      score: 0,
+      hasAnswered: false,
+    };
     if (!session.players.find((p) => p.id === newPlayer.id)) {
-      session.players.push({ ...newPlayer, score: newPlayer.score || 0, hasAnswered: false });
+      session.players.push({
+        ...newPlayer,
+        score: newPlayer.score || 0,
+        hasAnswered: false,
+      });
     }
     io.to(code).emit("session:update", { code, session });
   });
@@ -76,10 +175,21 @@ io.on("connection", (socket) => {
   socket.on("session:start", ({ code }) => {
     const session = sessions[code];
     if (!session || session.players.length === 0) return;
+
+    // Check if questions have been generated
+    if (!session.questions || session.questions.length === 0) {
+      socket.emit("session:error", {
+        code,
+        error: "No questions available. Please generate questions first.",
+      });
+      return;
+    }
+
     // Assign random avatars to players without one
     session.players.forEach((p) => {
       if (!p.avatar) {
-        const random = PLAYER_AVATARS[Math.floor(Math.random() * PLAYER_AVATARS.length)];
+        const random =
+          PLAYER_AVATARS[Math.floor(Math.random() * PLAYER_AVATARS.length)];
         p.avatar = random;
       }
     });
@@ -97,16 +207,20 @@ io.on("connection", (socket) => {
     player.hasAnswered = true;
     player.lastAnswer = answerIndex;
     player.answerTime = Date.now() - (session.timerStartTime || Date.now());
-    // Scoring logic to match client
-    const currentQuestion = QUESTIONS[session.currentQuestion];
+
+    // Scoring logic using generated questions
+    const currentQuestion = session.questions[session.currentQuestion];
     if (currentQuestion && answerIndex === currentQuestion.correctAnswer) {
-      const timeBonus = Math.max(0, 300 - Math.floor((player.answerTime || 0) / 100));
+      const timeBonus = Math.max(
+        0,
+        300 - Math.floor((player.answerTime || 0) / 100)
+      );
       player.score = (player.score || 0) + timeBonus;
     }
     io.to(code).emit("session:update", { code, session });
   });
 
-  socket.on("session:next", ({ code, totalQuestions }) => {
+  socket.on("session:next", ({ code }) => {
     const session = sessions[code];
     if (!session) return;
     session.players.forEach((p) => {
@@ -116,7 +230,9 @@ io.on("connection", (socket) => {
     });
     session.currentQuestion += 1;
     session.timerStartTime = Date.now();
-    const total = Array.isArray(QUESTIONS) ? QUESTIONS.length : typeof totalQuestions === "number" ? totalQuestions : 0;
+
+    // Use generated questions length
+    const total = session.questions ? session.questions.length : 0;
     if (total && session.currentQuestion >= total) {
       session.gameEnded = true;
     }
