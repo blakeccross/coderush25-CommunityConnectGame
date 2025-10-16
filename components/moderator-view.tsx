@@ -111,8 +111,12 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                       <div className="py-3 px-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
-                              {index + 1}
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
+                              {player.avatar ? (
+                                <span className="text-lg leading-none">{player.avatar}</span>
+                              ) : (
+                                <span className="font-bold text-primary">{index + 1}</span>
+                              )}
                             </div>
                             <span className="font-medium">{player.name}</span>
                           </div>
@@ -168,18 +172,8 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                   <div className="py-4 px-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div
-                          className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${
-                            index === 0
-                              ? "bg-accent text-accent-foreground"
-                              : index === 1
-                              ? "bg-secondary text-secondary-foreground"
-                              : index === 2
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {index + 1}
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
+                          {player.avatar ? <span className="leading-none">{player.avatar}</span> : <span className="font-bold">{index + 1}</span>}
                         </div>
                         <div>
                           <p className="font-semibold text-lg">{player.name}</p>
@@ -245,8 +239,12 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                         <div className="py-3 px-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
-                                {index + 1}
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
+                                {player.avatar ? (
+                                  <span className="text-lg leading-none">{player.avatar}</span>
+                                ) : (
+                                  <span className="font-bold text-primary">{index + 1}</span>
+                                )}
                               </div>
                               <div>
                                 <p className="font-medium">{player.name}</p>

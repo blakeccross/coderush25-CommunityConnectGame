@@ -80,7 +80,7 @@ export default function HomePage() {
         <div className="space-y-4 p-6">
           <div className="space-y-2">
             <label htmlFor="code" className="text-sm font-medium">
-              Game Code
+              Session Code
             </label>
             <Input
               id="code"

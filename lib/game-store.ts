@@ -7,6 +7,7 @@ export type Player = {
   hasAnswered: boolean;
   lastAnswer?: number;
   answerTime?: number;
+  avatar?: string; // emoji or url for the player's avatar
 };
 
 export type PrayerRequest = {
@@ -105,6 +106,9 @@ export const QUESTIONS: Question[] = [
     correctAnswer: 1,
   },
 ];
+
+// Eight selectable avatar options (emojis keep UX simple without assets)
+export const PLAYER_AVATARS: string[] = ["🦊", "🐼", "🐸", "🐯", "🦄", "🐵", "🐶", "🐱"];
 
 const STORAGE_KEY = "trivia-sessions";
 const USE_SOCKET = typeof window !== "undefined" && (process.env.NEXT_PUBLIC_USE_SOCKET === "1" || process.env.NEXT_PUBLIC_USE_SOCKET === "true");
@@ -241,6 +245,7 @@ export function joinSession(code: string, playerName: string): Player | null {
     name: playerName,
     score: 0,
     hasAnswered: false,
+    avatar: undefined,
   };
 
   session.players.push(player);
@@ -254,12 +259,41 @@ export function joinSession(code: string, playerName: string): Player | null {
   return player;
 }
 
+// Set or change a player's avatar
+export function setPlayerAvatar(code: string, playerId: string, avatar: string): boolean {
+  const sessions = getAllSessions();
+  const session = sessions[code];
+
+  if (!session || session.gameStarted) return false;
+  if (!PLAYER_AVATARS.includes(avatar)) return false;
+
+  const player = session.players.find((p) => p.id === playerId);
+  if (!player) return false;
+
+  player.avatar = avatar;
+  saveSessions(sessions);
+
+  const s = ensureSocket();
+  if (s) {
+    s.emit("session:set-avatar", { code, playerId, avatar });
+  }
+  return true;
+}
+
 // Start the game
 export function startGame(code: string): boolean {
   const sessions = getAllSessions();
   const session = sessions[code];
 
   if (!session || session.players.length === 0) return false;
+
+  // Assign random avatars to players who haven't chosen one
+  session.players.forEach((p) => {
+    if (!p.avatar) {
+      const random = PLAYER_AVATARS[Math.floor(Math.random() * PLAYER_AVATARS.length)];
+      p.avatar = random;
+    }
+  });
 
   session.gameStarted = true;
   session.currentQuestion = 0;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { getSession, subscribeToSession, startGame, type GameSession } from "@/lib/game-store";
+import { getSession, subscribeToSession, startGame, type GameSession, setPlayerAvatar, PLAYER_AVATARS } from "@/lib/game-store";
 import { QRCodeSVG } from "qrcode.react";
 import { Users, Play, Check, Clock } from "lucide-react";
 import { ModeratorView } from "@/components/moderator-view";
@@ -19,6 +19,7 @@ export default function SessionPage() {
   const [session, setSession] = useState<GameSession | null>(null);
   const [isModerator, setIsModerator] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
+  const [isSettingAvatar, setIsSettingAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     // If there's a player query parameter, they are definitely a player (not moderator)
@@ -58,6 +59,14 @@ export default function SessionPage() {
     }
   };
 
+  const handleAvatarSelect = (avatar: string) => {
+    if (!session || !playerId || session.gameStarted) return;
+    setIsSettingAvatar(avatar);
+    setPlayerAvatar(code, playerId, avatar);
+    // optimistic UI; server update will reconcile
+    setTimeout(() => setIsSettingAvatar(null), 300);
+  };
+
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -82,12 +91,10 @@ export default function SessionPage() {
         <div className="max-w-4xl mx-auto space-y-6 py-8">
           <div className="animate-pop-in">
             <div className="text-center space-y-4">
-              <h1 className="text-3xl font-bold animate-bounce-in">Game Lobby 🎯</h1>
+              <h1 className="text-3xl font-bold animate-bounce-in">Session Lobby</h1>
               <div className="flex items-center justify-center gap-2 animate-slide-up animate-delay-200">
-                <span className="text-muted-foreground">Game Code:</span>
-                <span className="text-4xl font-bold tracking-widest bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-float">
-                  {code}
-                </span>
+                <span className="text-muted-foreground">Session Code:</span>
+                <span className="text-4xl font-bold tracking-widest text-primary animate-float">{code}</span>
               </div>
             </div>
             <div className="space-y-6">
@@ -118,8 +125,12 @@ export default function SessionPage() {
                         <div className="py-3 px-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
-                                {index + 1}
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
+                                {player.avatar ? (
+                                  <span className="text-lg leading-none">{player.avatar}</span>
+                                ) : (
+                                  <span className="font-bold text-primary">{index + 1}</span>
+                                )}
                               </div>
                               <span className="font-medium">{player.name}</span>
                             </div>
@@ -164,6 +175,31 @@ export default function SessionPage() {
             </div>
           </div>
           <div className="space-y-6">
+            {/* Character selection (only for the joining player) */}
+            {playerId && (
+              <div className="space-y-3 animate-slide-up animate-delay-200">
+                <div className="text-lg font-semibold text-center">Choose your character</div>
+                <div className="grid grid-cols-4 gap-3">
+                  {PLAYER_AVATARS.map((avatar) => {
+                    const me = session.players.find((p) => p.id === playerId);
+                    const isSelected = me?.avatar === avatar;
+                    return (
+                      <button
+                        key={avatar}
+                        onClick={() => handleAvatarSelect(avatar)}
+                        className={`h-14 rounded-lg border flex items-center justify-center text-2xl transition-transform ${
+                          isSelected ? "bg-accent/20 border-accent scale-105" : "bg-muted/50 hover:scale-105"
+                        } ${isSettingAvatar === avatar ? "animate-pulse" : ""}`}
+                        aria-pressed={isSelected}
+                      >
+                        <span>{avatar}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground text-center">If you don't pick, we'll assign one when the host starts.</p>
+              </div>
+            )}
             <div className="space-y-3 animate-slide-up animate-delay-300">
               <div className="flex items-center gap-2 text-lg font-semibold">
                 <Users className="w-5 h-5" />
@@ -175,7 +211,13 @@ export default function SessionPage() {
                   <div key={player.id} className="bg-card/50 animate-slide-up">
                     <div className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">{index + 1}</div>
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
+                          {player.avatar ? (
+                            <span className="text-lg leading-none">{player.avatar}</span>
+                          ) : (
+                            <span className="font-bold text-primary">{index + 1}</span>
+                          )}
+                        </div>
                         <span className="font-medium">{player.name}</span>
                       </div>
                     </div>

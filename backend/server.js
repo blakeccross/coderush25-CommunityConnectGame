@@ -21,6 +21,8 @@ const QUESTIONS = [
   { id: 10, question: "What is the largest mammal in the world?", answers: ["Elephant", "Blue Whale", "Giraffe", "Polar Bear"], correctAnswer: 1 },
 ];
 
+const PLAYER_AVATARS = ["🦊", "🐼", "🐸", "🐯", "🦄", "🐵", "🐶", "🐱"];
+
 function generatePlayerId() {
   return `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
@@ -78,9 +80,26 @@ io.on("connection", (socket) => {
   socket.on("session:start", ({ code }) => {
     const session = sessions[code];
     if (!session || session.players.length === 0) return;
+    // Assign random avatars to players without one
+    session.players.forEach((p) => {
+      if (!p.avatar) {
+        const random = PLAYER_AVATARS[Math.floor(Math.random() * PLAYER_AVATARS.length)];
+        p.avatar = random;
+      }
+    });
     session.gameStarted = true;
     session.currentQuestion = 0;
     session.timerStartTime = Date.now();
+    io.to(code).emit("session:update", { code, session });
+  });
+
+  socket.on("session:set-avatar", ({ code, playerId, avatar }) => {
+    const session = sessions[code];
+    if (!session || session.gameStarted) return;
+    if (!PLAYER_AVATARS.includes(avatar)) return;
+    const player = session.players.find((p) => p.id === playerId);
+    if (!player) return;
+    player.avatar = avatar;
     io.to(code).emit("session:update", { code, session });
   });
 
