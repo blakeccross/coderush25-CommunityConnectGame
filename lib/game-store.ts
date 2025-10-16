@@ -9,6 +9,15 @@ export type Player = {
   answerTime?: number;
 };
 
+export type PrayerRequest = {
+  id: string;
+  playerId: string;
+  playerName: string;
+  request: string;
+  isAnonymous: boolean;
+  timestamp: number;
+};
+
 export type Question = {
   id: number;
   question: string;
@@ -25,7 +34,10 @@ export type GameSession = {
   gameEnded: boolean;
   timerStartTime?: number;
   brand?: string;
-  gameMode?: string;
+  sessionType?: string;
+  questions?: Question[];
+  gameMode?: "ice-breaker" | "session-trivia" | "prayer-request";
+  prayerRequests?: PrayerRequest[];
 };
 
 export type GameState = "lobby" | "playing" | "question-end" | "game-end";
@@ -140,7 +152,7 @@ export function generateCode(): string {
 }
 
 // Create a new session
-export function createSession(brand?: string, gameMode?: string): string {
+export function createSession(brand?: string, sessionType?: string, gameMode?: "ice-breaker" | "session-trivia" | "prayer-request"): string {
   const code = generateCode();
   const sessions = getAllSessions();
 
@@ -152,7 +164,10 @@ export function createSession(brand?: string, gameMode?: string): string {
     gameStarted: false,
     gameEnded: false,
     brand,
+    sessionType,
     gameMode,
+    questions: gameMode === "session-trivia" ? [...QUESTIONS] : undefined, // Initialize with default questions only for trivia
+    prayerRequests: gameMode === "prayer-request" ? [] : undefined,
   };
 
   saveSessions(sessions);
@@ -160,7 +175,7 @@ export function createSession(brand?: string, gameMode?: string): string {
   // Mirror to server if enabled
   const s = ensureSocket();
   if (s) {
-    s.emit("session:create", { code, moderatorId: sessions[code].moderatorId, brand, gameMode });
+    s.emit("session:create", { code, moderatorId: sessions[code].moderatorId, brand, sessionType, gameMode });
   }
   return code;
 }
@@ -174,6 +189,29 @@ export function generatePlayerId(): string {
 export function getSession(code: string): GameSession | null {
   const sessions = getAllSessions();
   return sessions[code] || null;
+}
+
+// Get questions for a session
+export function getSessionQuestions(code: string): Question[] {
+  const session = getSession(code);
+  return session?.questions || QUESTIONS;
+}
+
+// Update questions for a session
+export function updateSessionQuestions(code: string, questions: Question[]): boolean {
+  const sessions = getAllSessions();
+  const session = sessions[code];
+
+  if (!session || session.gameStarted) return false;
+
+  session.questions = questions;
+  saveSessions(sessions);
+
+  const s = ensureSocket();
+  if (s) {
+    s.emit("session:update-questions", { code, questions });
+  }
+  return true;
 }
 
 // Join a session
@@ -251,7 +289,8 @@ export function submitAnswer(code: string, playerId: string, answerIndex: number
   player.answerTime = Date.now() - (session.timerStartTime || Date.now());
 
   // Calculate score based on time (max 300 points)
-  const currentQuestion = QUESTIONS[session.currentQuestion];
+  const sessionQuestions = session.questions || QUESTIONS;
+  const currentQuestion = sessionQuestions[session.currentQuestion];
   if (answerIndex === currentQuestion.correctAnswer) {
     const timeBonus = Math.max(0, 300 - Math.floor(player.answerTime / 100));
     player.score += timeBonus;
@@ -283,7 +322,8 @@ export function nextQuestion(code: string): boolean {
   session.currentQuestion++;
   session.timerStartTime = Date.now();
 
-  if (session.currentQuestion >= QUESTIONS.length) {
+  const sessionQuestions = session.questions || QUESTIONS;
+  if (session.currentQuestion >= sessionQuestions.length) {
     session.gameEnded = true;
   }
 
@@ -291,9 +331,51 @@ export function nextQuestion(code: string): boolean {
 
   const s = ensureSocket();
   if (s) {
-    s.emit("session:next", { code, totalQuestions: QUESTIONS.length });
+    s.emit("session:next", { code, totalQuestions: sessionQuestions.length });
   }
   return true;
+}
+
+// Submit a prayer request
+export function submitPrayerRequest(code: string, playerId: string, playerName: string, request: string, isAnonymous: boolean): boolean {
+  const sessions = getAllSessions();
+  const session = sessions[code];
+
+  if (!session || session.gameMode !== "prayer-request") return false;
+
+  const player = session.players.find((p) => p.id === playerId);
+  if (!player || player.hasAnswered) return false;
+
+  const prayerRequest: PrayerRequest = {
+    id: `prayer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    playerId,
+    playerName,
+    request,
+    isAnonymous,
+    timestamp: Date.now(),
+  };
+
+  if (!session.prayerRequests) {
+    session.prayerRequests = [];
+  }
+
+  session.prayerRequests.push(prayerRequest);
+  player.hasAnswered = true;
+
+  saveSessions(sessions);
+
+  const s = ensureSocket();
+  if (s) {
+    s.emit("session:prayer-request", { code, prayerRequest });
+  }
+
+  return true;
+}
+
+// Get all prayer requests for a session
+export function getPrayerRequests(code: string): PrayerRequest[] {
+  const session = getSession(code);
+  return session?.prayerRequests || [];
 }
 
 // Subscribe to session updates

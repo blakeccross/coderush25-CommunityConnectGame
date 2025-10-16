@@ -7,10 +7,10 @@ import HyfiLogo from "@/public/logos/HyfiLogo";
 
 export type BrandCode = "BSFL" | "ETB" | "TGP" | "YOU" | "HYFI";
 
-export type GameMode = "classic" | "speed" | "team" | "survival";
+export type SessionType = "classic" | "speed" | "team" | "survival";
 
-export type GameModeData = {
-  id: GameMode;
+export type SessionData = {
+  id: SessionType;
   name: string;
   description: string;
   icon: string;
@@ -21,7 +21,7 @@ type BrandData = {
   description: string;
   background: string;
   logo: React.ReactNode;
-  gameModes: GameModeData[];
+  sessions: SessionData[];
 };
 
 export const brands: Record<BrandCode, BrandData> = {
@@ -30,7 +30,7 @@ export const brands: Record<BrandCode, BrandData> = {
     description: "Digital Curriculum for the Next Generation",
     background: 'center / cover url("/hyfi-background.jpg") no-repeat',
     logo: <HyfiLogo />,
-    gameModes: [
+    sessions: [
       {
         id: "classic",
         name: "Session 01 - The Promised Messiah",
@@ -62,7 +62,7 @@ export const brands: Record<BrandCode, BrandData> = {
     description: "Intentional, biblical discipleship rooted in everyday life",
     background: "linear-gradient(180deg, #f05a47 0%, #ff8979 100%)",
     logo: <BSFLLogo />,
-    gameModes: [
+    sessions: [
       {
         id: "classic",
         name: "Session 01 - The Promised Messiah",
@@ -94,7 +94,7 @@ export const brands: Record<BrandCode, BrandData> = {
     description: "An expository, book-by-book study of Scripture",
     background: "linear-gradient(180deg, #CECECE 0%, #EAEAEA 100%)",
     logo: <ETBLogo />,
-    gameModes: [
+    sessions: [
       {
         id: "classic",
         name: "Session 01 - The Promised Messiah",
@@ -126,7 +126,7 @@ export const brands: Record<BrandCode, BrandData> = {
     description: "A Christ-centered, chronological study of Scripture",
     background: "linear-gradient(180deg, #1F2638 0%, #6375A5 100%)",
     logo: <TGPLogo />,
-    gameModes: [
+    sessions: [
       {
         id: "classic",
         name: "Session 01 - The Promised Messiah",
@@ -158,7 +158,7 @@ export const brands: Record<BrandCode, BrandData> = {
     description: "A Bible Study for Urban and Multicultural Believers",
     background: "linear-gradient(69.95deg, #EBF3F9 4.99%, #B0DDFC 69.32%)",
     logo: <YOULogo />,
-    gameModes: [
+    sessions: [
       {
         id: "classic",
         name: "Session 01 - The Promised Messiah",

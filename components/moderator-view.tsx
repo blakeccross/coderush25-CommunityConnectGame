@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { type GameSession, QUESTIONS, nextQuestion } from "@/lib/game-store";
-import { Clock, Check, X, Trophy, Users } from "lucide-react";
+import { type GameSession, getSessionQuestions, nextQuestion, getPrayerRequests } from "@/lib/game-store";
+import { Clock, Check, X, Trophy, Users, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type ModeratorViewProps = {
@@ -15,7 +15,8 @@ export function ModeratorView({ session }: ModeratorViewProps) {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState(30);
   const [showResults, setShowResults] = useState(false);
-  const currentQuestion = QUESTIONS[session.currentQuestion];
+  const questions = getSessionQuestions(session.code);
+  const currentQuestion = questions[session.currentQuestion];
 
   useEffect(() => {
     if (showResults) return;
@@ -44,6 +45,101 @@ export function ModeratorView({ session }: ModeratorViewProps) {
     localStorage.removeItem("sessionCode");
     router.push("/");
   };
+
+  // Prayer Request Mode
+  if (session.gameMode === "prayer-request") {
+    const prayerRequests = getPrayerRequests(session.code);
+    const allPlayersSubmitted = session.players.every((p) => p.hasAnswered);
+
+    return (
+      <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+        <div className="max-w-4xl mx-auto space-y-6 py-8">
+          <div className="animate-pop-in">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center animate-bounce-in">
+                <div className="p-4 bg-orange-500/20 rounded-full animate-pulse-glow">
+                  <Heart className="w-12 h-12 text-orange-500 animate-float" />
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Prayer Requests</h1>
+              <p className="text-muted-foreground animate-slide-up animate-delay-300">
+                {allPlayersSubmitted
+                  ? `All ${session.players.length} participants have submitted their requests`
+                  : `${prayerRequests.length} of ${session.players.length} participants have submitted`}
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {prayerRequests.length === 0 ? (
+                <div className="text-center py-12 animate-pulse">
+                  <p className="text-muted-foreground">Waiting for prayer requests...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {prayerRequests.map((request, index) => (
+                    <div
+                      key={request.id}
+                      className={`bg-card/50 p-6 rounded-xl border-2 border-border animate-slide-up animate-delay-${400 + index * 100}`}
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                              <Heart className="w-4 h-4 text-orange-500" />
+                            </div>
+                            <p className="font-semibold text-lg">{request.isAnonymous ? "Anonymous" : request.playerName}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{new Date(request.timestamp).toLocaleTimeString()}</p>
+                        </div>
+                        <p className="text-base text-foreground leading-relaxed pl-10">{request.request}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-4 space-y-3">
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                  <Users className="w-5 h-5" />
+                  <span>Participant Status 👥</span>
+                </div>
+
+                <div className="grid gap-2">
+                  {session.players.map((player, index) => (
+                    <div key={player.id} className="bg-card/50 animate-slide-up">
+                      <div className="py-3 px-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
+                              {index + 1}
+                            </div>
+                            <span className="font-medium">{player.name}</span>
+                          </div>
+                          {player.hasAnswered ? (
+                            <Check className="w-5 h-5 text-accent animate-pop-in" />
+                          ) : (
+                            <Clock className="w-5 h-5 text-muted-foreground animate-pulse" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                onClick={handleEndGame}
+                className="w-full text-lg h-12 font-semibold mt-6 game-button animate-pop-in animate-delay-600"
+                size="lg"
+              >
+                End Session ✨
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (session.gameEnded) {
     // Final leaderboard
@@ -122,7 +218,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
           <div className="shadow-xl animate-pop-in">
             <div className="text-center space-y-4">
               <h1 className="text-2xl font-bold animate-bounce-in">
-                Question {session.currentQuestion + 1} of {QUESTIONS.length}
+                Question {session.currentQuestion + 1} of {questions.length}
               </h1>
               <p className="text-lg animate-slide-up animate-delay-200">{currentQuestion.question}</p>
               <div className="p-4 bg-accent/20 rounded-lg animate-pop-in animate-delay-300">
@@ -177,7 +273,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                 className="w-full text-lg h-14 font-semibold game-button animate-pulse-glow animate-pop-in animate-delay-500"
                 size="lg"
               >
-                {session.currentQuestion + 1 < QUESTIONS.length ? "Next Question ➡️" : "View Final Results 🏆"}
+                {session.currentQuestion + 1 < questions.length ? "Next Question ➡️" : "View Final Results 🏆"}
               </Button>
             </div>
           </div>
@@ -194,7 +290,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
           <div className="space-y-4">
             <div className="flex items-center justify-between animate-slide-up animate-delay-100">
               <h1 className="text-xl font-bold">
-                Question {session.currentQuestion + 1} of {QUESTIONS.length}
+                Question {session.currentQuestion + 1} of {questions.length}
               </h1>
               <div className="flex items-center gap-2 text-lg font-bold">
                 <Clock className={`w-5 h-5 ${timeLeft <= 10 ? "animate-pulse" : ""}`} />
