@@ -120,8 +120,7 @@ export default function EditQuestionsPage() {
             </div>
           </div>
           <Button onClick={handleSave} disabled={isSaving} size="lg">
-            <Save className="w-5 h-5 mr-2" />
-            Save & Continue
+            Continue
           </Button>
         </div>
 

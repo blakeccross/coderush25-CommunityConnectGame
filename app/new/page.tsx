@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { createSession } from "@/lib/game-store";
 import { Sparkles, Gamepad2, ChevronDown, Heart, BookOpen, Users } from "lucide-react";
 import { brands, BrandCode, SessionType } from "@/constants";
@@ -25,6 +26,28 @@ export default function NewGamePage() {
       }[]
     | null
   >(null);
+  const [etbText, setEtbText] = useState<string>("");
+
+  // Prefetch ETB text once so it's ready when generating starts
+  useEffect(() => {
+    let cancelled = false;
+    async function loadEtb() {
+      try {
+        const res = await fetch("/ETB_students_Session1.txt");
+        const txt = await res.text();
+        // Remove all line breaks and normalize whitespace to single spaces
+        if (!cancelled) setEtbText(txt.replace(/\s+/g, " ").trim());
+      } catch (e) {
+        if (!cancelled) setEtbText("");
+      }
+    }
+    if (!etbText) {
+      loadEtb();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [etbText]);
 
   const gameModes = [
     {
@@ -143,7 +166,7 @@ export default function NewGamePage() {
           <div className="text-center space-y-8">
             <div className="flex justify-center mb-4 animate-bounce-in">
               <div className="p-4 bg-primary/10 rounded-full animate-pulse-glow">
-                <Gamepad2 className="w-12 h-12 text-primary animate-float" />
+                <Sparkles className="w-12 h-12 text-primary animate-float" />
               </div>
             </div>
             <div>
@@ -364,6 +387,27 @@ export default function NewGamePage() {
           </div>
         )}
       </div>
+
+      {isGenerating && (
+        <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-md">
+          <div className="scrolling-document">
+            <div className="scroll-content animate-vertical-scroll">
+              {etbText}
+              {"\n\n"}
+              {etbText}
+              {"\n\n"}
+              {etbText}
+            </div>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <Spinner className="size-10 text-white/90" />
+              <div className="text-2xl font-bold text-white drop-shadow">Generating Questions</div>
+              <div className="text-sm text-white/80">Analyzing curriculum…</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
