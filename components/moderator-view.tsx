@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { type GameSession, getSessionQuestions, nextQuestion, getPrayerRequests, endGame } from "@/lib/game-store";
 import { Clock, Check, X, Trophy, Users, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { motion, LayoutGroup } from "framer-motion";
 
 type ModeratorViewProps = {
   session: GameSession;
@@ -15,6 +16,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState(30);
   const [showResults, setShowResults] = useState(false);
+  const [reorderToNew, setReorderToNew] = useState(false);
   const questions = getSessionQuestions(session.code);
   const currentQuestion = questions[session.currentQuestion];
 
@@ -33,6 +35,13 @@ export function ModeratorView({ session }: ModeratorViewProps) {
 
     return () => clearInterval(timer);
   }, [session.timerStartTime, showResults]);
+
+  useEffect(() => {
+    if (!showResults) return;
+    setReorderToNew(false);
+    const timer = setTimeout(() => setReorderToNew(true), 1000);
+    return () => clearTimeout(timer);
+  }, [showResults]);
 
   const handleNextQuestion = () => {
     nextQuestion(session.code);
@@ -153,7 +162,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
     return (
       <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="max-w-2xl mx-auto space-y-6 py-8">
-          <div className="shadow-xl animate-pop-in">
+          <div className="animate-pop-in">
             <div className="text-center space-y-4">
               <div className="flex justify-center animate-bounce-in">
                 <div className="p-4 bg-accent/20 rounded-full animate-pulse-glow">
@@ -164,7 +173,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
               <p className="text-xl text-muted-foreground animate-slide-up animate-delay-300">Final Scores 🏆</p>
             </div>
             <div className="space-y-4">
-              {sortedPlayers.map((player, index) => (
+              {sortedPlayers.slice(0, 20).map((player, index) => (
                 <div
                   key={player.id}
                   className={`animate-slide-up animate-delay-${400 + index * 100} ${index === 0 ? "bg-accent/10 border-accent" : "bg-card/50"}`}
@@ -205,12 +214,21 @@ export function ModeratorView({ session }: ModeratorViewProps) {
 
   if (showResults) {
     // Show results after timer ends
-    const sortedPlayers = [...session.players].sort((a, b) => b.score - a.score);
+    const computed = session.players.map((p) => {
+      const isCorrect = p.lastAnswer === currentQuestion.correctAnswer;
+      const pointsEarned = isCorrect ? Math.max(0, 300 - Math.floor((p.answerTime || 0) / 100)) : 0;
+      return { ...p, pointsEarned, prevScore: (p.score || 0) - pointsEarned };
+    });
+
+    const finalSorted = [...computed].sort((a, b) => b.score - a.score);
+    const finalTop20 = finalSorted.slice(0, 20);
+    const initialOrder = [...finalTop20].sort((a, b) => b.prevScore - a.prevScore);
+    const showing = reorderToNew ? finalTop20 : initialOrder;
 
     return (
       <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="max-w-2xl mx-auto space-y-6 py-8">
-          <div className="shadow-xl animate-pop-in">
+          <div className="animate-pop-in">
             <div className="text-center space-y-4">
               <h1 className="text-2xl font-bold animate-bounce-in">
                 Question {session.currentQuestion + 1} of {questions.length}
@@ -218,7 +236,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
               <p className="text-lg animate-slide-up animate-delay-200">{currentQuestion.question}</p>
               <div className="p-4 bg-accent/20 rounded-lg animate-pop-in animate-delay-300">
                 <p className="text-sm font-medium text-muted-foreground mb-2">Correct Answer:</p>
-                <p className="text-xl font-bold text-accent">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
+                <p className="text-7xl font-bold text-accent">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
               </div>
             </div>
             <div className="space-y-6">
@@ -229,42 +247,43 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                   <span>Current Standings 📊</span>
                 </div>
 
-                <div className="grid gap-2">
-                  {sortedPlayers.map((player, index) => {
-                    const isCorrect = player.lastAnswer === currentQuestion.correctAnswer;
-                    const pointsEarned = isCorrect ? Math.max(0, 300 - Math.floor((player.answerTime || 0) / 100)) : 0;
-
-                    return (
-                      <div key={player.id} className="bg-card/50 animate-slide-up">
-                        <div className="py-3 px-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
-                                {player.avatar ? (
-                                  <span className="text-lg leading-none">{player.avatar}</span>
+                <LayoutGroup>
+                  <div className="grid gap-2">
+                    {showing.map((player, index) => {
+                      const isCorrect = player.lastAnswer === currentQuestion.correctAnswer;
+                      const pointsEarned = player.pointsEarned as number;
+                      return (
+                        <motion.div key={player.id} layout layoutId={player.id} className="bg-card/50 animate-slide-up">
+                          <div className="py-3 px-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
+                                  {player.avatar ? (
+                                    <span className="text-lg leading-none">{player.avatar}</span>
+                                  ) : (
+                                    <span className="font-bold text-primary">{index + 1}</span>
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="font-medium">{player.name}</p>
+                                  {isCorrect && pointsEarned > 0 && <p className="text-xs text-accent">+{pointsEarned} pts</p>}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="font-bold text-lg">{player.score}</span>
+                                {isCorrect ? (
+                                  <Check className="w-5 h-5 text-accent animate-pop-in" />
                                 ) : (
-                                  <span className="font-bold text-primary">{index + 1}</span>
+                                  <X className="w-5 h-5 text-destructive animate-wiggle" />
                                 )}
                               </div>
-                              <div>
-                                <p className="font-medium">{player.name}</p>
-                                {isCorrect && pointsEarned > 0 && <p className="text-xs text-accent">+{pointsEarned} pts</p>}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span className="font-bold text-lg">{player.score}</span>
-                              {isCorrect ? (
-                                <Check className="w-5 h-5 text-accent animate-pop-in" />
-                              ) : (
-                                <X className="w-5 h-5 text-destructive animate-wiggle" />
-                              )}
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </LayoutGroup>
               </div>
 
               <Button
@@ -285,7 +304,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
   return (
     <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <div className="max-w-2xl mx-auto space-y-6 py-8">
-        <div className="shadow-xl animate-pop-in">
+        <div className="animate-pop-in">
           <div className="space-y-4">
             <div className="flex items-center justify-between animate-slide-up animate-delay-100">
               <h1 className="text-xl font-bold">

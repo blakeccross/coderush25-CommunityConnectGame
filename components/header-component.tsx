@@ -4,12 +4,9 @@ type HeaderProps = {
   showResult: boolean;
 };
 
-export default function MorphDemo({
-  showResult,
-  children,
-}: PropsWithChildren<HeaderProps>) {
+export default function MorphDemo({ showResult, children }: PropsWithChildren<HeaderProps>) {
   return (
-    <div className="relative h-screen w-full max-w-md mx-auto overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden">
       {/* Background - white */}
       <div className="absolute inset-0 bg-white" />
 
@@ -18,17 +15,12 @@ export default function MorphDemo({
         className="absolute inset-x-0 top-0 transition-all duration-1000 ease-in-out"
         style={{
           background: "linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%)",
-          height: showResult ? "80%" : "15%",
+          height: showResult ? "95%" : "10%",
           zIndex: 10,
         }}
       >
         {/* Curve at bottom - convex becomes concave */}
-        <svg
-          className="absolute bottom-0 left-0 right-0 w-full"
-          viewBox="0 0 400 100"
-          preserveAspectRatio="none"
-          style={{ height: "100px" }}
-        >
+        <svg className="absolute bottom-0 left-0 right-0 w-full" viewBox="0 0 400 100" preserveAspectRatio="none" style={{ height: "100px" }}>
           <path
             d={
               showResult

@@ -2,12 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  type GameSession,
-  getSessionQuestions,
-  submitAnswer,
-  submitPrayerRequest,
-} from "@/lib/game-store";
+import { type GameSession, getSessionQuestions, submitAnswer, submitPrayerRequest } from "@/lib/game-store";
 import { Check, X, Trophy, Clock, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,13 +71,7 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
     if (!prayerRequest.trim() || hasSubmitted) return;
 
     const playerName = localStorage.getItem("playerName") || "Anonymous";
-    submitPrayerRequest(
-      session.code,
-      playerId,
-      playerName,
-      prayerRequest.trim(),
-      isAnonymous
-    );
+    submitPrayerRequest(session.code, playerId, playerName, prayerRequest.trim(), isAnonymous);
     setHasSubmitted(true);
   };
 
@@ -113,15 +102,9 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
                     <Check className="w-16 h-16 text-accent animate-float" />
                   </div>
                 </div>
-                <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">
-                  Prayer Request Submitted! 🙏
-                </h1>
-                <p className="text-muted-foreground animate-slide-up animate-delay-300">
-                  Your prayer request has been shared with the moderator
-                </p>
-                <p className="text-sm text-muted-foreground animate-pulse animate-delay-400">
-                  Waiting for other participants...
-                </p>
+                <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Prayer Request Submitted! 🙏</h1>
+                <p className="text-muted-foreground animate-slide-up animate-delay-300">Your prayer request has been shared with the moderator</p>
+                <p className="text-sm text-muted-foreground animate-pulse animate-delay-400">Waiting for other participants...</p>
               </div>
             </div>
           </div>
@@ -139,9 +122,7 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
                   <Heart className="w-12 h-12 text-orange-500 animate-float" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold animate-slide-up animate-delay-200">
-                Share Your Prayer Request
-              </h1>
+              <h1 className="text-2xl font-bold animate-slide-up animate-delay-200">Share Your Prayer Request</h1>
               <p className="text-sm text-muted-foreground animate-slide-up animate-delay-300">
                 Your request will be shared with your community for prayer
               </p>
@@ -159,23 +140,12 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
                   className="min-h-[120px] resize-none"
                   maxLength={500}
                 />
-                <p className="text-xs text-muted-foreground text-right">
-                  {prayerRequest.length}/500
-                </p>
+                <p className="text-xs text-muted-foreground text-right">{prayerRequest.length}/500</p>
               </div>
 
               <div className="flex items-center space-x-2 animate-slide-up animate-delay-500">
-                <Checkbox
-                  id="anonymous"
-                  checked={isAnonymous}
-                  onCheckedChange={(checked) =>
-                    setIsAnonymous(checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="anonymous"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
+                <Checkbox id="anonymous" checked={isAnonymous} onCheckedChange={(checked) => setIsAnonymous(checked as boolean)} />
+                <label htmlFor="anonymous" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Submit anonymously (your name won't be shown)
                 </label>
               </div>
@@ -197,44 +167,32 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
 
   if (session.gameEnded) {
     // Final score for player
-    const sortedPlayers = [...session.players].sort(
-      (a, b) => b.score - a.score
-    );
+    const sortedPlayers = [...session.players].sort((a, b) => b.score - a.score);
     const playerRank = sortedPlayers.findIndex((p) => p.id === playerId) + 1;
 
     return (
       <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="max-w-md mx-auto space-y-6 py-8">
-          <div className="shadow-xl animate-pop-in">
+          <div className="animate-pop-in">
             <div className="text-center space-y-4">
               <div className="flex justify-center animate-bounce-in">
                 <div className="p-4 bg-accent/20 rounded-full animate-pulse-glow">
                   <Trophy className="w-16 h-16 text-accent animate-float" />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">
-                Game Over! 🎉
-              </h1>
+              <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Game Over! 🎉</h1>
               <div className="space-y-2 animate-slide-up animate-delay-300">
                 <p className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
                   {player.score}
                 </p>
                 <p className="text-lg text-muted-foreground">points</p>
                 <p className="text-xl font-semibold">
-                  {playerRank === 1
-                    ? "🏆 You Won!"
-                    : `${playerRank}${
-                        playerRank === 2 ? "nd" : playerRank === 3 ? "rd" : "th"
-                      } Place`}
+                  {playerRank === 1 ? "🏆 You Won!" : `${playerRank}${playerRank === 2 ? "nd" : playerRank === 3 ? "rd" : "th"} Place`}
                 </p>
               </div>
             </div>
             <div>
-              <Button
-                onClick={handleEndGame}
-                className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-400"
-                size="lg"
-              >
+              <Button onClick={handleEndGame} className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-400" size="lg">
                 Back to Home ✨
               </Button>
             </div>
@@ -247,59 +205,36 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
   if (showResult) {
     // Show if answer was correct or incorrect
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
-    const pointsEarned =
-      isCorrect && player.answerTime
-        ? Math.max(0, 300 - Math.floor(player.answerTime / 100))
-        : 0;
+    const pointsEarned = isCorrect && player.answerTime ? Math.max(0, 300 - Math.floor(player.answerTime / 100)) : 0;
 
     return (
       <HeaderComponent showResult={true}>
         <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
           <div className="max-w-md mx-auto space-y-6 py-8">
-            <div className="shadow-xl animate-pop-in">
-              <div className="text-center space-y-4">
+            <div className="animate-pop-in">
+              <div className="text-center space-y-4 mb-4">
                 <div className="flex justify-center animate-bounce-in">
-                  <div
-                    className={`p-4 rounded-full animate-pulse-glow ${
-                      isCorrect ? "bg-accent/20" : "bg-destructive/20"
-                    }`}
-                  >
-                    {isCorrect ? (
-                      <Check className="w-16 h-16 text-accent" />
-                    ) : (
-                      <X className="w-16 h-16 text-destructive" />
-                    )}
+                  <div className={`p-4 rounded-full animate-pulse-glow ${isCorrect ? "bg-white/80" : "bg-destructive/20"}`}>
+                    {isCorrect ? <Check className="w-16 h-16 text-green-600" /> : <X className="w-16 h-16 text-destructive" />}
                   </div>
                 </div>
-                <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">
-                  {isCorrect ? "Correct! ✅" : "Incorrect ❌"}
-                </h1>
+                <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">{isCorrect ? "Correct!" : "Incorrect"}</h1>
                 {isCorrect && pointsEarned > 0 && (
-                  <p className="text-2xl font-bold text-accent animate-pop-in animate-delay-300">
-                    +{pointsEarned} points
-                  </p>
+                  <p className="text-2xl font-bold text-white animate-pop-in animate-delay-300">+{pointsEarned} points</p>
                 )}
               </div>
               <div className="space-y-4">
                 <div className="p-4 bg-muted/50 rounded-lg text-center animate-slide-up animate-delay-400">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
-                    Correct Answer:
-                  </p>
-                  <p className="text-lg font-bold">
-                    {currentQuestion.answers[currentQuestion.correctAnswer]}
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Correct Answer:</p>
+                  <p className="text-6xl font-bold">{currentQuestion.answers[currentQuestion.correctAnswer]}</p>
                 </div>
 
                 <div className="text-center animate-slide-up animate-delay-500">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Your Score
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-1">Your Score</p>
                   <p className="text-4xl font-bold">{player.score}</p>
                 </div>
 
-                <p className="text-center text-muted-foreground animate-pulse animate-delay-600">
-                  Waiting for next question...
-                </p>
+                <p className="text-center text-muted-foreground animate-pulse animate-delay-600">Waiting for next question...</p>
               </div>
             </div>
           </div>
@@ -313,31 +248,19 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
     <HeaderComponent showResult={false}>
       <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="max-w-md mx-auto space-y-6 py-8">
-          <div className="shadow-xl animate-pop-in">
+          <div className="animate-pop-in">
             <div className="space-y-4">
               <div className="flex items-center justify-between animate-slide-up animate-delay-100">
                 <h1 className="text-lg font-bold">
                   Question {session.currentQuestion + 1}/{questions.length}
                 </h1>
                 <div className="flex items-center gap-2 text-lg font-bold">
-                  <Clock
-                    className={`w-5 h-5 ${
-                      timeLeft <= 10 ? "animate-pulse" : ""
-                    }`}
-                  />
-                  <span
-                    className={
-                      timeLeft <= 10 ? "text-destructive animate-pulse" : ""
-                    }
-                  >
-                    {timeLeft}s
-                  </span>
+                  <Clock className={`w-5 h-5 ${timeLeft <= 10 ? "animate-pulse" : ""}`} />
+                  <span className={timeLeft <= 10 ? "text-destructive animate-pulse" : ""}>{timeLeft}s</span>
                 </div>
               </div>
 
-              <p className="text-xl font-bold text-center py-4 text-balance animate-bounce-in animate-delay-200">
-                {currentQuestion.question}
-              </p>
+              <p className="text-xl font-bold text-center py-4 text-balance animate-bounce-in animate-delay-200">{currentQuestion.question}</p>
             </div>
             <div className="space-y-4">
               {hasSubmitted ? (
@@ -347,12 +270,8 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
                       <Check className="w-12 h-12 text-accent" />
                     </div>
                   </div>
-                  <p className="text-lg font-semibold animate-slide-up animate-delay-200">
-                    Answer Submitted! ✓
-                  </p>
-                  <p className="text-muted-foreground animate-pulse animate-delay-300">
-                    Waiting for other players...
-                  </p>
+                  <p className="text-lg font-semibold animate-slide-up animate-delay-200">Answer Submitted! ✓</p>
+                  <p className="text-muted-foreground animate-pulse animate-delay-300">Waiting for other players...</p>
                 </div>
               ) : (
                 <div className="grid gap-3">
