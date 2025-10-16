@@ -65,8 +65,8 @@ io.on("connection", (socket) => {
     const session = sessions[code];
     if (!session || session.players.length === 0) return;
 
-    // Check if questions have been generated
-    if (!session.questions || session.questions.length === 0) {
+    // Check if questions have been generated (only for modes that need questions)
+    if (session.gameMode !== "prayer-request" && (!session.questions || session.questions.length === 0)) {
       socket.emit("session:error", {
         code,
         error: "No questions available. Please generate questions first.",
@@ -84,6 +84,7 @@ io.on("connection", (socket) => {
     session.gameStarted = true;
     session.currentQuestion = 0;
     session.timerStartTime = Date.now();
+    session.questionEnded = false;
     io.to(code).emit("session:update", { code, session });
   });
 
@@ -131,6 +132,39 @@ io.on("connection", (socket) => {
     const player = session.players.find((p) => p.id === playerId);
     if (!player) return;
     player.avatar = avatar;
+    io.to(code).emit("session:update", { code, session });
+  });
+
+  socket.on("session:prayer-request", ({ code, prayerRequest }) => {
+    const session = sessions[code];
+    if (!session || session.gameMode !== "prayer-request") return;
+
+    if (!session.prayerRequests) {
+      session.prayerRequests = [];
+    }
+
+    session.prayerRequests.push(prayerRequest);
+
+    // Mark player as having answered
+    const player = session.players.find((p) => p.id === prayerRequest.playerId);
+    if (player) {
+      player.hasAnswered = true;
+    }
+
+    io.to(code).emit("session:update", { code, session });
+  });
+
+  socket.on("session:end", ({ code }) => {
+    const session = sessions[code];
+    if (!session) return;
+    session.gameEnded = true;
+    io.to(code).emit("session:update", { code, session });
+  });
+
+  socket.on("session:update-questions", ({ code, questions }) => {
+    const session = sessions[code];
+    if (!session || session.gameStarted) return;
+    session.questions = questions;
     io.to(code).emit("session:update", { code, session });
   });
 });
