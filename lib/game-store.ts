@@ -1,5 +1,3 @@
-// Game state management using localStorage and events for cross-tab communication
-
 export type Player = {
   id: string;
   name: string;
@@ -7,7 +5,7 @@ export type Player = {
   hasAnswered: boolean;
   lastAnswer?: number;
   answerTime?: number;
-  avatar?: string; // emoji or url for the player's avatar
+  avatar?: string;
 };
 
 export type PrayerRequest = {
@@ -34,6 +32,7 @@ export type GameSession = {
   gameStarted: boolean;
   gameEnded: boolean;
   timerStartTime?: number;
+  questionEnded?: boolean;
   brand?: string;
   sessionType?: string;
   questions?: Question[];
@@ -248,7 +247,6 @@ export function joinSession(code: string, playerName: string): Player | null {
       return null;
     }
   }
-  if (session.gameStarted) return null;
 
   const player: Player = {
     id: generatePlayerId(),
@@ -295,7 +293,9 @@ export function startGame(code: string): boolean {
   const sessions = getAllSessions();
   const session = sessions[code];
 
-  if (!session || session.players.length === 0) return false;
+  if (!session) return false;
+  // Allow starting prayer-request sessions without waiting for players
+  if (session.gameMode !== "prayer-request" && session.players.length === 0) return false;
 
   // Assign random avatars to players who haven't chosen one
   session.players.forEach((p) => {
@@ -308,6 +308,7 @@ export function startGame(code: string): boolean {
   session.gameStarted = true;
   session.currentQuestion = 0;
   session.timerStartTime = Date.now();
+  session.questionEnded = false;
 
   saveSessions(sessions);
 
@@ -340,6 +341,12 @@ export function submitAnswer(code: string, playerId: string, answerIndex: number
     player.score += timeBonus;
   }
 
+  // If all players have answered, mark question as ended to trigger results immediately
+  const allAnswered = session.players.length > 0 && session.players.every((p) => p.hasAnswered);
+  if (allAnswered) {
+    session.questionEnded = true;
+  }
+
   saveSessions(sessions);
 
   const s = ensureSocket();
@@ -365,6 +372,7 @@ export function nextQuestion(code: string): boolean {
 
   session.currentQuestion++;
   session.timerStartTime = Date.now();
+  session.questionEnded = false;
 
   const sessionQuestions = session.questions || QUESTIONS;
   if (session.currentQuestion >= sessionQuestions.length) {

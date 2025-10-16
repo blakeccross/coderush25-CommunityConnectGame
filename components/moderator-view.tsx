@@ -23,7 +23,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
   const currentQuestion = questions[session.currentQuestion];
 
   useEffect(() => {
-    if (showResults) return;
+    if (showResults || session.questionEnded) return;
 
     const timer = setInterval(() => {
       const elapsed = Date.now() - (session.timerStartTime || Date.now());
@@ -33,10 +33,19 @@ export function ModeratorView({ session }: ModeratorViewProps) {
       if (remaining === 0) {
         setShowResults(true);
       }
+      if (session.questionEnded) {
+        setShowResults(true);
+      }
     }, 100);
 
     return () => clearInterval(timer);
-  }, [session.timerStartTime, showResults]);
+  }, [session.timerStartTime, session.questionEnded, showResults]);
+
+  useEffect(() => {
+    if (session.questionEnded && !showResults) {
+      setShowResults(true);
+    }
+  }, [session.questionEnded, showResults]);
 
   useEffect(() => {
     if (!showResults) return;

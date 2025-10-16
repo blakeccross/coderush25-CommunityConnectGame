@@ -45,19 +45,19 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
       if (remaining === 0 && !showResult) {
         setShowResult(true);
       }
+      if (session.questionEnded && !showResult) {
+        setShowResult(true);
+      }
     }, 100);
 
     return () => clearInterval(timer);
-  }, [session.timerStartTime, showResult]);
+  }, [session.timerStartTime, session.questionEnded, showResult]);
 
   useEffect(() => {
-    // Redirect to home when session ends
-    if (session.gameEnded) {
-      localStorage.removeItem("playerId");
-      localStorage.removeItem("playerName");
-      router.push("/");
+    if (session.questionEnded && !showResult) {
+      setShowResult(true);
     }
-  }, [session.gameEnded, router]);
+  }, [session.questionEnded, showResult]);
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (hasSubmitted || showResult) return;
