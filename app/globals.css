@@ -323,7 +323,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border: 100px solid rgba(255, 255, 255, 0.215);
+  border: 100px solid rgb(255, 255, 255);
   border-radius: 50%;
   animation: expand-ring 12s ease-out infinite;
 }
@@ -335,47 +335,4 @@ body {
 
 .animated-rings-bg::after {
   animation-delay: 6s;
-}
-
-@keyframes expand-ring {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.6;
-  }
-  100% {
-    width: 200vh;
-    height: 200vh;
-    opacity: 0;
-  }
-}
-
-.ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 100px solid rgb(255, 11, 11);
-  border-radius: 50%;
-  animation: expand-ring 9s ease-out infinite;
-  pointer-events: none;
-}
-
-.dark .ring {
-  border-color: rgba(255, 255, 255, 0.125);
-}
-
-.ring:nth-child(2) {
-  animation-delay: 3s;
-}
-
-.ring:nth-child(3) {
-  animation-delay: 6s;
-}
-
-.ring:nth-child(4) {
-  animation-delay: 9s;
 }

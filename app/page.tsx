@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { joinSession } from "@/lib/game-store";
+import { motion } from "framer-motion";
 
 export default function HomePage() {
   const router = useRouter();
@@ -47,17 +48,34 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center p-4 bg-background">
-      {/* Animated rings */}
-      {/* <div className="ring" />
-      <div className="ring" />
-      <div className="ring" />
-      <div className="ring" /> */}
+    <div className="min-h-screen flex justify-center p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 relative overflow-hidden">
+      {/* {[0, 1, 2, 3].map((i) => (
+        <motion.div
+          key={i}
+          className="absolute top-1/2 left-1/2 border-[100px] border-primary/10 dark:border-white/10 rounded-full pointer-events-none"
+          style={{
+            x: "-50%",
+            y: "-50%",
+          }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{
+            scale: [0, 8],
+            opacity: [0, 0.6, 0],
+          }}
+          transition={{
+            duration: 9,
+            repeat: Infinity,
+            delay: i * 2.25,
+            ease: "easeOut",
+          }}
+        />
+      ))} */}
 
       <div className="w-full max-w-md animate-pop-in relative z-10 mt-24">
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold animate-bounce-in animate-float">MinistryGo</h1>
-          <p className="text-base animate-slide-up animate-delay-200 text-muted-foreground">Enter the game code to join the fun!</p>
+          <img src="/logos/ministrygo_logo.svg" alt="MinistryGo" className=" w-48 h-auto mx-auto" />
+
+          <p className="text-base animate-slide-up animate-delay-200 text-muted-foreground">Enter the session code to join</p>
         </div>
         <div className="space-y-4 p-6">
           <div className="space-y-2">
