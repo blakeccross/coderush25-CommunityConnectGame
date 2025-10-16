@@ -104,6 +104,8 @@ export default function NewGamePage() {
 
         setGeneratedQuestions(data.questions);
 
+        console.log("Generated questions:", selectedBrand.code, sessionType, "session-trivia", data.questions);
+
         // Create session with generated questions
         const code = createSession(selectedBrand.code, sessionType, "session-trivia", data.questions);
 
@@ -120,7 +122,7 @@ export default function NewGamePage() {
       }
     } else {
       // For non-trivia modes, create session without questions
-      const code = createSession(selectedBrand.code, sessionType, "session-trivia", generatedQuestions || undefined);
+      const code = createSession(selectedBrand.code, sessionType, gameMode || undefined, generatedQuestions || undefined);
 
       // Store moderator flag
       localStorage.setItem("isModerator", "true");
