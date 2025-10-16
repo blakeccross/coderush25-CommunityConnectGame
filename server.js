@@ -33,19 +33,11 @@ io.on("connection", (socket) => {
     socket.emit("session:update", { code, session });
   });
 
-  socket.on("session:create", ({ code, moderatorId }) => {
-    if (!code) return;
+  socket.on("session:create", (session) => {
+    if (!session || !session.code) return;
+    const code = session.code;
     if (!sessions[code]) {
-      sessions[code] = {
-        code,
-        moderatorId: moderatorId || generatePlayerId(),
-        players: [],
-        currentQuestion: 0,
-        gameStarted: false,
-        gameEnded: false,
-        timerStartTime: undefined,
-        questions: [], // Will be populated by Bedrock
-      };
+      sessions[code] = session;
     }
     io.to(code).emit("session:update", { code, session: sessions[code] });
   });

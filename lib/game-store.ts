@@ -189,7 +189,7 @@ export function createSession(
   // Mirror to server if enabled
   const s = ensureSocket();
   if (s) {
-    s.emit("session:create", { code, moderatorId: sessions[code].moderatorId, brand, sessionType, gameMode });
+    s.emit("session:create", sessions[code]);
   }
   return code;
 }

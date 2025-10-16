@@ -47,22 +47,11 @@ io.on("connection", (socket) => {
     socket.emit("session:update", { code, session });
   });
 
-  socket.on("session:create", ({ code, moderatorId, brand, sessionType, gameMode }) => {
-    if (!code) return;
+  socket.on("session:create", (session) => {
+    if (!session || !session.code) return;
+    const code = session.code;
     if (!sessions[code]) {
-      sessions[code] = {
-        code,
-        moderatorId: moderatorId || generatePlayerId(),
-        players: [],
-        currentQuestion: 0,
-        gameStarted: false,
-        gameEnded: false,
-        timerStartTime: undefined,
-        brand,
-        sessionType,
-        gameMode,
-        prayerRequests: gameMode === "prayer-request" ? [] : undefined,
-      };
+      sessions[code] = session;
     }
     io.to(code).emit("session:update", { code, session: sessions[code] });
   });
