@@ -98,7 +98,7 @@ export default function HomePage() {
             />
           </div>
 
-          <div className="space-y-2 ">
+          <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
               Your Name
             </label>
@@ -118,31 +118,33 @@ export default function HomePage() {
 
           {error && <p className="text-sm text-destructive text-center animate-wiggle">{error}</p>}
 
-          <Button
-            onClick={handleJoin}
-            className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-500 animate-pulse-glow"
-            size="lg"
-          >
-            Join Session
-          </Button>
+          <div className="space-y-2">
+            <Button
+              onClick={handleJoin}
+              className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-500 animate-pulse-glow"
+              size="lg"
+            >
+              Join Session
+            </Button>
 
-          <div className="relative animate-slide-up animate-delay-600">
-            {/* <div className="absolute inset-0 flex items-center">
+            <div className="relative animate-slide-up animate-delay-600">
+              {/* <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div> */}
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="px-2 text-muted-foreground">Or</span>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="px-2 text-muted-foreground">Or</span>
+              </div>
             </div>
-          </div>
 
-          <Button
-            onClick={() => router.push("/new")}
-            variant="outline"
-            className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-600"
-            size="lg"
-          >
-            <PlusIcon className="w-4 h-4" /> Create New Session
-          </Button>
+            <Button
+              onClick={() => router.push("/new")}
+              variant="outline"
+              className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-600"
+              size="lg"
+            >
+              <PlusIcon className="w-4 h-4" /> Create New Session
+            </Button>
+          </div>
         </div>
       </div>
     </div>
