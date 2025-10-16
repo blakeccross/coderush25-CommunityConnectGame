@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { type GameSession, getSessionQuestions, nextQuestion, getPrayerRequests } from "@/lib/game-store";
+import { type GameSession, getSessionQuestions, nextQuestion, getPrayerRequests, endGame } from "@/lib/game-store";
 import { Clock, Check, X, Trophy, Users, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -41,6 +41,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
   };
 
   const handleEndGame = () => {
+    endGame(session.code);
     localStorage.removeItem("isModerator");
     localStorage.removeItem("sessionCode");
     router.push("/");

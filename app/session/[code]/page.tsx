@@ -80,7 +80,7 @@ export default function SessionPage() {
     return (
       <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="max-w-4xl mx-auto space-y-6 py-8">
-          <div className="shadow-xl animate-pop-in">
+          <div className="animate-pop-in">
             <div className="text-center space-y-4">
               <h1 className="text-3xl font-bold animate-bounce-in">Game Lobby 🎯</h1>
               <div className="flex items-center justify-center gap-2 animate-slide-up animate-delay-200">
@@ -91,8 +91,7 @@ export default function SessionPage() {
               </div>
             </div>
             <div className="space-y-6">
-              {/* QR Code */}
-              <div className="flex flex-col items-center gap-4 p-6 bg-muted/50 rounded-lg animate-slide-up animate-delay-300">
+              <div className="flex flex-col items-center gap-4 p-6 rounded-lg animate-slide-up animate-delay-300">
                 <p className="text-sm font-medium text-muted-foreground">Scan to join</p>
                 <div className="bg-white p-4 rounded-lg animate-pulse-glow">
                   <QRCodeSVG value={inviteUrl} size={200} />
@@ -100,7 +99,6 @@ export default function SessionPage() {
                 <p className="text-xs text-muted-foreground text-center max-w-xs">Players can scan this QR code or enter the code manually</p>
               </div>
 
-              {/* Players List */}
               <div className="space-y-3 animate-slide-up animate-delay-400">
                 <div className="flex items-center gap-2 text-lg font-semibold">
                   <Users className="w-5 h-5" />
@@ -155,7 +153,7 @@ export default function SessionPage() {
   return (
     <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <div className="max-w-md mx-auto space-y-6 py-8">
-        <div className="shadow-xl animate-pop-in">
+        <div className="animate-pop-in">
           <div className="text-center space-y-4">
             <h1 className="text-2xl font-bold animate-bounce-in">Waiting to Start ⏳</h1>
             <div className="flex items-center justify-center gap-2 animate-slide-up animate-delay-200">

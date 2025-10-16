@@ -378,6 +378,24 @@ export function getPrayerRequests(code: string): PrayerRequest[] {
   return session?.prayerRequests || [];
 }
 
+// End the game session
+export function endGame(code: string): boolean {
+  const sessions = getAllSessions();
+  const session = sessions[code];
+
+  if (!session) return false;
+
+  session.gameEnded = true;
+
+  saveSessions(sessions);
+
+  const s = ensureSocket();
+  if (s) {
+    s.emit("session:end", { code });
+  }
+  return true;
+}
+
 // Subscribe to session updates
 export function subscribeToSession(code: string, callback: (session: GameSession | null) => void) {
   const handler = () => {

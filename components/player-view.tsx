@@ -49,6 +49,15 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
     return () => clearInterval(timer);
   }, [session.timerStartTime, showResult]);
 
+  useEffect(() => {
+    // Redirect to home when session ends
+    if (session.gameEnded) {
+      localStorage.removeItem("playerId");
+      localStorage.removeItem("playerName");
+      router.push("/");
+    }
+  }, [session.gameEnded, router]);
+
   const handleAnswerSelect = (answerIndex: number) => {
     if (hasSubmitted || showResult) return;
 

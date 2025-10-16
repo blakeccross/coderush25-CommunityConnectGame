@@ -1,5 +1,5 @@
 /* Simple Socket.IO game server to mirror client game-store behavior */
-import { createServer } from 'node:http';
+import { createServer } from "node:http";
 import { Server } from "socket.io";
 
 const PORT = process.env.SOCKET_PORT ? Number(process.env.SOCKET_PORT) : 4000;
@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
     socket.emit("session:update", { code, session });
   });
 
-  socket.on("session:create", ({ code, moderatorId }) => {
+  socket.on("session:create", ({ code, moderatorId, brand, sessionType, gameMode }) => {
     if (!code) return;
     if (!sessions[code]) {
       sessions[code] = {
@@ -56,6 +56,10 @@ io.on("connection", (socket) => {
         gameStarted: false,
         gameEnded: false,
         timerStartTime: undefined,
+        brand,
+        sessionType,
+        gameMode,
+        prayerRequests: gameMode === "prayer-request" ? [] : undefined,
       };
     }
     io.to(code).emit("session:update", { code, session: sessions[code] });
@@ -111,6 +115,26 @@ io.on("connection", (socket) => {
     if (total && session.currentQuestion >= total) {
       session.gameEnded = true;
     }
+    io.to(code).emit("session:update", { code, session });
+  });
+
+  socket.on("session:end", ({ code }) => {
+    const session = sessions[code];
+    if (!session) return;
+    session.gameEnded = true;
+    io.to(code).emit("session:update", { code, session });
+  });
+
+  socket.on("session:prayer-request", ({ code, prayerRequest }) => {
+    const session = sessions[code];
+    if (!session || session.gameMode !== "prayer-request") return;
+    const player = session.players.find((p) => p.id === prayerRequest.playerId);
+    if (!player || player.hasAnswered) return;
+    if (!session.prayerRequests) {
+      session.prayerRequests = [];
+    }
+    session.prayerRequests.push(prayerRequest);
+    player.hasAnswered = true;
     io.to(code).emit("session:update", { code, session });
   });
 });
