@@ -80,7 +80,7 @@ export default function HomePage() {
           </h1>
           <p className="text-base animate-slide-up animate-delay-200 text-muted-foreground">Enter the session code to join</p>
         </div>
-        <div className="space-y-4 p-6">
+        <div className="space-y-4 p-2">
           <div className="space-y-2">
             <label htmlFor="code" className="text-sm font-medium">
               Session Code
