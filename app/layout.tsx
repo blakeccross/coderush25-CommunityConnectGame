@@ -27,7 +27,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <link rel="icon" href="/favicon.ico" sizes="any" />
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <meta name="theme-color" content="#FCD34D" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </head>
       <body className={`font-sans ${adlamDisplay.variable} ${GeistSans.variable} ${GeistMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>{children}</Suspense>

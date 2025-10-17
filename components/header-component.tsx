@@ -7,10 +7,8 @@ type HeaderProps = {
 export default function MorphDemo({ showResult, children }: PropsWithChildren<HeaderProps>) {
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* Background - white */}
-      <div className="absolute inset-0 bg-white" />
+      <div className="absolute inset-0 bg-background" />
 
-      {/* Yellow section - slides down and morphs */}
       <div
         className="absolute inset-x-0 top-0 transition-all duration-1000 ease-in-out"
         style={{
@@ -19,7 +17,6 @@ export default function MorphDemo({ showResult, children }: PropsWithChildren<He
           zIndex: 10,
         }}
       >
-        {/* Curve at bottom - convex becomes concave */}
         <svg className="absolute bottom-0 left-0 right-0 w-full" viewBox="0 0 400 100" preserveAspectRatio="none" style={{ height: "100px" }}>
           <path
             d={
@@ -27,8 +24,7 @@ export default function MorphDemo({ showResult, children }: PropsWithChildren<He
                 ? "M 0 0 Q 200 100 400 0 L 400 100 L 0 100 Z" // Concave - dips inward
                 : "M 0 100 Q 200 0 400 100 L 400 100 L 0 100 Z" // Convex - bulges outward
             }
-            className="transition-all duration-1000 ease-in-out"
-            fill="white"
+            className="transition-all duration-1000 ease-in-out fill-background"
           />
         </svg>
 

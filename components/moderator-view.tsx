@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { type GameSession, getSessionQuestions, nextQuestion, getPrayerRequests, endGame } from "@/lib/game-store";
+import { type GameSession, getSessionQuestions, nextQuestion, getPrayerRequests, endGame, startPrayerMode } from "@/lib/game-store";
 import { Clock, Check, X, Trophy, Users, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, LayoutGroup } from "framer-motion";
@@ -16,7 +16,7 @@ type ModeratorViewProps = {
 
 export function ModeratorView({ session }: ModeratorViewProps) {
   const router = useRouter();
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(15);
   const [showResults, setShowResults] = useState(false);
   const [reorderToNew, setReorderToNew] = useState(false);
   const questions = getSessionQuestions(session.code);
@@ -27,7 +27,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
 
     const timer = setInterval(() => {
       const elapsed = Date.now() - (session.timerStartTime || Date.now());
-      const remaining = Math.max(0, 30 - Math.floor(elapsed / 1000));
+      const remaining = Math.max(0, 15 - Math.floor(elapsed / 1000));
       setTimeLeft(remaining);
 
       if (remaining === 0) {
@@ -57,7 +57,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
   const handleNextQuestion = () => {
     nextQuestion(session.code);
     setShowResults(false);
-    setTimeLeft(30);
+    setTimeLeft(15);
   };
 
   const handleEndGame = () => {
@@ -97,30 +97,30 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                     <p className="text-muted-foreground">Waiting for prayer requests...</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
                     {prayerRequests.map((request, index) => (
                       <div
                         key={request.id}
-                        className={`bg-card/50 p-6 rounded-xl border-2 border-border animate-slide-up animate-delay-${400 + index * 100}`}
+                        className={`bg-card/50 p-4 rounded-xl border-2 border-border animate-slide-up animate-delay-${400 + index * 100}`}
                       >
-                        <div className="space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
-                                <Heart className="w-4 h-4 text-orange-500" />
-                              </div>
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                              <Heart className="w-4 h-4 text-orange-500" />
+                            </div>
+                            <div className="flex-1 items-start">
                               <p className="font-semibold text-lg">{request.isAnonymous ? "Anonymous" : request.playerName}</p>
+                              <p className="text-base text-foreground leading-relaxed">{request.request}</p>
                             </div>
                             <p className="text-xs text-muted-foreground">{new Date(request.timestamp).toLocaleTimeString()}</p>
                           </div>
-                          <p className="text-base text-foreground leading-relaxed pl-10">{request.request}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className="pt-4 space-y-3">
+                {/* <div className="pt-4 space-y-3">
                   <div className="flex items-center gap-2 text-lg font-semibold">
                     <Users className="w-5 h-5" />
                     <span>Participant Status 👥</span>
@@ -151,7 +151,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                       </div>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 <Button
                   onClick={handleEndGame}
@@ -179,14 +179,14 @@ export function ModeratorView({ session }: ModeratorViewProps) {
             <div className="animate-pop-in">
               <div className="text-center space-y-4">
                 <div className="flex justify-center animate-bounce-in">
-                  <div className="p-4 bg-accent/20 rounded-full animate-pulse-glow">
+                  <div className="p-4 bg-background rounded-full animate-pulse-glow">
                     <Trophy className="w-16 h-16 text-accent animate-float" />
                   </div>
                 </div>
                 <h1 className="text-4xl font-bold animate-slide-up animate-delay-200">Game Over! 🎉</h1>
                 <p className="text-xl text-muted-foreground animate-slide-up animate-delay-300">Final Scores 🏆</p>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
                 {sortedPlayers.slice(0, 20).map((player, index) => (
                   <div
                     key={player.id}
@@ -200,7 +200,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                           </div>
                           <div>
                             <p className="font-semibold text-lg">{player.name}</p>
-                            {index === 0 && <p className="text-sm text-accent font-medium">Winner! 🏆</p>}
+                            {index === 0 && <p className="text-sm font-medium">Winner! 🏆</p>}
                           </div>
                         </div>
                         <div className="text-right">
@@ -212,13 +212,18 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                   </div>
                 ))}
 
-                <Button
-                  onClick={handleEndGame}
-                  className="w-full text-lg h-12 font-semibold mt-6 game-button animate-pop-in animate-delay-600"
-                  size="lg"
-                >
-                  Back to Home ✨
-                </Button>
+                <div className="grid gap-3 mt-6">
+                  <Button
+                    onClick={() => startPrayerMode(session.code)}
+                    className="w-full text-lg h-12 font-semibold game-button animate-pop-in animate-delay-600"
+                    size="lg"
+                  >
+                    Start Prayer Mode 🙏
+                  </Button>
+                  <Button onClick={handleEndGame} variant="outline" className="w-full text-lg h-12 font-semibold" size="lg">
+                    Back to Home ✨
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -273,7 +278,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                             <div className="py-2 px-3">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-base">{index + 1}</div>
+                                  <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-base">{index + 1}</div>
                                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
                                     {player.avatar ? (
                                       <span className="text-lg leading-none">{player.avatar}</span>
@@ -331,12 +336,12 @@ export function ModeratorView({ session }: ModeratorViewProps) {
                 Question {session.currentQuestion + 1} of {questions.length}
               </h1>
               <div className="flex items-center gap-2 text-lg font-bold">
-                <Clock className={`w-5 h-5 ${timeLeft <= 10 ? "animate-pulse" : ""}`} />
-                <span className={timeLeft <= 10 ? "text-destructive animate-pulse" : ""}>{timeLeft}s</span>
+                <Clock className={`w-5 h-5 ${timeLeft <= 5 ? "animate-pulse" : ""}`} />
+                <span className={timeLeft <= 5 ? "text-destructive animate-pulse" : ""}>{timeLeft}s</span>
               </div>
             </div>
 
-            <Progress value={(timeLeft / 30) * 100} className="h-2 animate-slide-up animate-delay-200" />
+            <Progress value={(timeLeft / 15) * 100} className="h-2 animate-slide-up animate-delay-200" />
 
             <p className="text-2xl font-bold text-center py-4 animate-bounce-in animate-delay-300">{currentQuestion.question}</p>
           </div>

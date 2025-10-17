@@ -446,6 +446,39 @@ export function endGame(code: string): boolean {
   return true;
 }
 
+// Start Prayer Request mode within the same session (without disconnecting players)
+export function startPrayerMode(code: string): boolean {
+  const sessions = getAllSessions();
+  const session = sessions[code];
+
+  if (!session) return false;
+
+  // Reset player submission state
+  session.players.forEach((player) => {
+    player.hasAnswered = false;
+    player.lastAnswer = undefined;
+    player.answerTime = undefined;
+  });
+
+  // Switch mode and initialize prayer requests
+  session.gameMode = "prayer-request";
+  session.prayerRequests = [];
+
+  // Clear trivia-specific timers/state and ensure session is active
+  session.timerStartTime = undefined;
+  session.questionEnded = undefined;
+  session.gameStarted = true;
+  session.gameEnded = false;
+
+  saveSessions(sessions);
+
+  const s = ensureSocket();
+  if (s) {
+    s.emit("session:start-prayer", { code });
+  }
+  return true;
+}
+
 // Subscribe to session updates
 export function subscribeToSession(code: string, callback: (session: GameSession | null) => void) {
   const handler = () => {

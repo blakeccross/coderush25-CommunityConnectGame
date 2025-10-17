@@ -39,7 +39,7 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
     // Timer
     const timer = setInterval(() => {
       const elapsed = Date.now() - (session.timerStartTime || Date.now());
-      const remaining = Math.max(0, 30 - Math.floor(elapsed / 1000));
+      const remaining = Math.max(0, 15 - Math.floor(elapsed / 1000));
       setTimeLeft(remaining);
 
       if (remaining === 0 && !showResult) {
@@ -116,7 +116,7 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
       <div className="min-h-screen p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="max-w-md mx-auto space-y-6 py-8">
           <div className="animate-pop-in">
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-2 mb-4">
               <div className="flex justify-center animate-bounce-in">
                 <div className="p-4 bg-orange-500/20 rounded-full animate-pulse-glow">
                   <Heart className="w-12 h-12 text-orange-500 animate-float" />
@@ -181,10 +181,8 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
                 </div>
               </div>
               <h1 className="text-3xl font-bold animate-slide-up animate-delay-200">Game Over! 🎉</h1>
-              <div className="space-y-2 animate-slide-up animate-delay-300">
-                <p className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                  {player.score}
-                </p>
+              <div className="space-y-2 animate-slide-up animate-delay-300 mb-4">
+                <p className="text-5xl font-bold text-primary">{player.score}</p>
                 <p className="text-lg text-muted-foreground">points</p>
                 <p className="text-xl font-semibold">
                   {playerRank === 1 ? "🏆 You Won!" : `${playerRank}${playerRank === 2 ? "nd" : playerRank === 3 ? "rd" : "th"} Place`}

@@ -159,7 +159,7 @@ export default function NewGamePage() {
   const activeBrands = Object.entries(brands) as [BrandCode, (typeof brands)[BrandCode]][];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 overflow-hidden">
+    <div className="min-h-screen flex pt-28 justify-center p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 overflow-hidden">
       <div className="w-full max-w-6xl">
         {/* Game Mode Selection */}
         {!gameMode && (

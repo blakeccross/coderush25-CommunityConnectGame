@@ -161,6 +161,31 @@ io.on("connection", (socket) => {
     io.to(code).emit("session:update", { code, session });
   });
 
+  // Switch to Prayer Request mode without disconnecting players
+  socket.on("session:start-prayer", ({ code }) => {
+    const session = sessions[code];
+    if (!session) return;
+
+    // Reset player submission state
+    session.players.forEach((p) => {
+      p.hasAnswered = false;
+      p.lastAnswer = undefined;
+      p.answerTime = undefined;
+    });
+
+    // Switch mode and initialize prayer requests
+    session.gameMode = "prayer-request";
+    session.prayerRequests = [];
+
+    // Clear trivia-specific timers/state and ensure session is active
+    session.timerStartTime = undefined;
+    session.questionEnded = undefined;
+    session.gameStarted = true;
+    session.gameEnded = false;
+
+    io.to(code).emit("session:update", { code, session });
+  });
+
   socket.on("session:update-questions", ({ code, questions }) => {
     const session = sessions[code];
     if (!session || session.gameStarted) return;
