@@ -290,11 +290,6 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
                   ))}
                 </div>
               )}
-
-              <div className="pt-4 text-center animate-slide-up animate-delay-600">
-                <p className="text-sm text-muted-foreground mb-1">Your Score</p>
-                <p className="text-2xl font-bold">{player.score}</p>
-              </div>
             </div>
           </div>
         </div>

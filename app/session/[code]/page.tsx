@@ -5,7 +5,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getSession, subscribeToSession, startGame, type GameSession, setPlayerAvatar, PLAYER_AVATARS } from "@/lib/game-store";
 import { QRCodeSVG } from "qrcode.react";
-import { Users, Play, Check, Clock } from "lucide-react";
+import { Users, Play, Clock } from "lucide-react";
 import { ModeratorView } from "@/components/moderator-view";
 import { PlayerView } from "@/components/player-view";
 
@@ -119,24 +119,17 @@ export default function SessionPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid gap-2">
-                    {session.players.map((player, index) => (
-                      <div key={player.id} className="bg-card/50 animate-slide-up">
-                        <div className="py-3 px-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-base">
-                                {player.avatar ? (
-                                  <span className="text-lg leading-none">{player.avatar}</span>
-                                ) : (
-                                  <span className="font-bold text-primary">{index + 1}</span>
-                                )}
-                              </div>
-                              <span className="font-medium">{player.name}</span>
-                            </div>
-                            <Check className="w-5 h-5 text-accent animate-pop-in" />
-                          </div>
+                  <div className="grid grid-cols-6 gap-4">
+                    {session.players.slice(-12).map((player, index) => (
+                      <div key={player.id} className="bg-card/50 animate-slide-up rounded-lg p-4 flex flex-col items-center">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
+                          {player.avatar ? (
+                            <span className="leading-none">{player.avatar}</span>
+                          ) : (
+                            <span className="font-bold text-primary">{index + 1}</span>
+                          )}
                         </div>
+                        <span className="mt-2 font-medium text-center">{player.name}</span>
                       </div>
                     ))}
                   </div>
@@ -204,7 +197,7 @@ export default function SessionPage() {
                 <span>Players ({session.players.length})</span>
               </div>
 
-              <div className="grid gap-2">
+              {/* <div className="grid gap-2">
                 {session.players.map((player, index) => (
                   <div key={player.id} className="bg-card/50 animate-slide-up">
                     <div className="py-3 px-4">
@@ -221,7 +214,7 @@ export default function SessionPage() {
                     </div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             <div className="text-center py-8 animate-slide-up animate-delay-400">
