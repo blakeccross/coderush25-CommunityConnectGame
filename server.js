@@ -103,6 +103,12 @@ io.on("connection", (socket) => {
       const timeBonus = Math.max(0, 300 - Math.floor((player.answerTime || 0) / 100));
       player.score = (player.score || 0) + timeBonus;
     }
+
+    // If all players have answered, end the question immediately
+    const allAnswered = session.players.length > 0 && session.players.every((p) => p.hasAnswered);
+    if (allAnswered) {
+      session.questionEnded = true;
+    }
     io.to(code).emit("session:update", { code, session });
   });
 
@@ -116,6 +122,7 @@ io.on("connection", (socket) => {
     });
     session.currentQuestion += 1;
     session.timerStartTime = Date.now();
+    session.questionEnded = false;
 
     // Use generated questions length
     const total = session.questions ? session.questions.length : 0;

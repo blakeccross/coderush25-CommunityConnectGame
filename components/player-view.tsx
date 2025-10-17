@@ -46,6 +46,7 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
         setShowResult(true);
       }
       if (session.questionEnded && !showResult) {
+        setTimeLeft(0);
         setShowResult(true);
       }
     }, 100);
@@ -55,6 +56,7 @@ export function PlayerView({ session, playerId }: PlayerViewProps) {
 
   useEffect(() => {
     if (session.questionEnded && !showResult) {
+      setTimeLeft(0);
       setShowResult(true);
     }
   }, [session.questionEnded, showResult]);

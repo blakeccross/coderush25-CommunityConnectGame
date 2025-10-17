@@ -34,6 +34,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
         setShowResults(true);
       }
       if (session.questionEnded) {
+        setTimeLeft(0);
         setShowResults(true);
       }
     }, 100);
@@ -43,6 +44,7 @@ export function ModeratorView({ session }: ModeratorViewProps) {
 
   useEffect(() => {
     if (session.questionEnded && !showResults) {
+      setTimeLeft(0);
       setShowResults(true);
     }
   }, [session.questionEnded, showResults]);
